@@ -3,6 +3,9 @@ body {
     background-color: #f4f6f9;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
+.logo{
+	width: 30%;
+}
 
 /* Tabelas */
 .table-dark th {
@@ -32,7 +35,7 @@ body {
 .pdf-link {
     text-decoration: none;
     font-weight: bold;
-    color: #dc3545;
+    color: #000000;
 }
 .pdf-link:hover {
     text-decoration: underline;

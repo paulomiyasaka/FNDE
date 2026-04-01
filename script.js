@@ -80,6 +80,10 @@ document.getElementById('selectAllNf').onclick = function() {
     document.querySelectorAll('.nf-check').forEach(c => c.checked = this.checked);
 };
 
+document.getElementById('selectAllEmails').onclick = function() {
+    document.querySelectorAll('.nf-check').forEach(c => c.checked = this.checked);
+};
+
 // 7. Ordenação de Tabelas
 function sortTable(n, tableId) {
     let table = document.getElementById(tableId);
@@ -123,7 +127,10 @@ function populateMockData() {
         const idx = Math.floor(Math.random() * 3); // Sorteia o status
         const currentStatus = statusList[idx];
         const fornNome = `${fornecedores[i % 5]} (OP-${1000 + i})`;
-        const dataPrevista = `2026-04-${String(Math.ceil(Math.random() * 30)).padStart(2, '0')}`;
+        const dataSolicitacao = `${String(Math.ceil(Math.random() * 30)).padStart(2, '0')}/03/2026`;
+        const dataPrevista = `${String(Math.ceil(Math.random() * 30)).padStart(2, '0')}/04/2026`;
+        const peso = Math.ceil(Math.random() * 1000);
+        const qtdPaletes = Math.ceil(Math.random() * 30);
         
         // Define o botão baseado no status
         let btnAcao = "";
@@ -137,8 +144,13 @@ function populateMockData() {
 
         htmlAgen += `
             <tr>
+                <td class="text-center"><input type="checkbox" class="nf-check"></td>
                 <td class="fw-medium">${fornNome}</td>
+                <td>${dataSolicitacao}</td>
                 <td>${dataPrevista}</td>
+                <td>${peso}</td>
+                <td>${qtdPaletes}</td>
+                <td><a href="#" class="pdf-link"><i class="fas fa-file-pdf"></i> Visualizar PDF</a></td>
                 <td><span class="badge ${badgeClasses[idx]}">${currentStatus}</span></td>
                 <td>${btnAcao}</td>
             </tr>`;
@@ -151,13 +163,15 @@ function populateMockData() {
     
     for (let i = 1; i <= 15; i++) {
         const fornNome = fornecedores[i % 5];
-        const dataEntrega = `2026-03-${String(10 + i).padStart(2, '0')}`;
-        const protocolo = `PRT-${8800 + i}`;
+        const dataAgendamento = `2026-03-${String(10 + i).padStart(2, '0')}`;
+        const dataEntrega = `2026-04-${String(10 + i).padStart(2, '0')}`;
+        const protocolo = `SEI-${64321200 + i}`;
         
         htmlNF += `
             <tr>
                 <td class="text-center"><input type="checkbox" class="nf-check"></td>
                 <td class="fw-medium">${fornNome}</td>
+                <td>${dataAgendamento}</td>
                 <td>${dataEntrega}</td>
                 <td>${protocolo}</td>
                 <td><a href="#" class="pdf-link"><i class="fas fa-file-pdf"></i> Visualizar PDF</a></td>
