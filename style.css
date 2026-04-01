@@ -1,0 +1,48 @@
+/* Base */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Tabelas */
+.table-dark th {
+    cursor: pointer;
+    background-color: #000 !important;
+    border-color: #333 !important;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.table-dark th:hover {
+    background-color: #222 !important;
+}
+
+.table-scroll {
+    background: #fff;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Badges de Status */
+.badge-pendente { background-color: #ffc107; color: #000; border: 1px solid #e0a800; }
+.badge-cancelado { background-color: #dc3545; color: #fff; }
+.badge-entregue { background-color: #198754; color: #fff; }
+
+/* Links de PDF na Tabela */
+.pdf-link {
+    text-decoration: none;
+    font-weight: bold;
+    color: #dc3545;
+}
+.pdf-link:hover {
+    text-decoration: underline;
+    color: #a71d2a;
+}
+
+/* Transições SPA */
+section { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cores do Toast */
+.toast-success { background-color: #198754; }
+.toast-error { background-color: #dc3545; }
