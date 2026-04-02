@@ -1,0 +1,12 @@
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.table th.sortable {
+    cursor: pointer;
+}
+
+.table th.sortable:hover {
+    background-color: #f0f0f0;
+}

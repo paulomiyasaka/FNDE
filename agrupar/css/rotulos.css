@@ -1,0 +1,8 @@
+.table th,
+.table td {
+    vertical-align: middle;
+}
+
+.toast {
+    min-width: 280px;
+}
