@@ -1,0 +1,17 @@
+{
+    "name": "correios/fnde",
+    "description": "Ferramenta de Apoio para as Operações FNDE",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "FNDE\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Paulo Rodrigues Miyasaka 81363826"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
