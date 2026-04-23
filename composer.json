@@ -13,5 +13,8 @@
         }
     ],
     "minimum-stability": "stable",
-    "require": {}
+    "require": {
+        "endroid/qr-code": "^5.1",
+        "mpdf/mpdf": "^8.3"
+    }
 }
