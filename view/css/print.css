@@ -1,0 +1,209 @@
+/* ---------- Padrões gerais ---------- */  
+:root {    /* Tamanho A4 em milímetros */    
+--a4-width: 210mm;    
+--a4-height: 297mm;    
+
+/* Margens internas da página impressa */    
+--page-margin: 0mm; /* 2 cm */  
+}  
+
+/* Visualização na tela (opcional): caixa A4 com sombra */  
+@media screen {    
+body {      
+background: #f0f2f5;      
+padding: 24px;      
+font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;    
+}    
+
+.sheet {      
+width: var(--a4-width);      
+min-height: var(--a4-height);      
+margin: 0 auto;      
+background: #fff;      
+box-shadow: 0 2px 12px rgba(0,0,0,.15);      
+color: #222;    
+}    
+
+.content {      
+padding: var(--page-margin);    
+}  
+
+}  
+
+/* ---------- Configuração de impressão ---------- */  
+/* Define explicitamente o tamanho do papel e margens */  
+@page {    
+size: A4 portrait;    
+/*margin: var(--page-margin);  */
+padding: var(--page-margin);
+}  
+@media print {    
+/* Remove sombras/cores de fundo que não são necessárias na impressão */    
+body {      
+background: transparent !important;
+  
+}    
+.sheet {      
+box-shadow: none !important;      
+/* Útil quando se imprime direto sem pré-visualização */      
+width: auto;      
+min-height: auto; 
+/*page-break-inside: avoid !important;  Propriedade antiga */
+/*break-inside: avoid-page !important;  Propriedade moderna */
+}    
+
+.content {      
+/* Sem padding se já usamos @page margin */      
+padding: 0;  
+}    
+
+/* Melhor fidelidade de cores em alguns navegadores */    
+*{      
+-webkit-print-color-adjust: exact;      
+print-color-adjust: exact;    
+}    
+
+/* Rodapé fixo por página */    
+    
+footer.print-footer {      
+position: fixed;      
+left: 0;      
+right: 0;      
+color: #333;    
+}  
+
+/* Cabeçalho fixos somente a primeira página */ 
+header.print-header:first-child{        
+left: 0;      
+right: 0;      
+color: #333;    
+}  
+
+header.print-header {      
+top: 0;    
+}   
+
+footer.print-footer {      
+bottom: 0;    
+}    
+/* Evitar quebras ruins e controlar paginação */    
+
+h1, h2, h3 {      
+page-break-after: avoid;      
+break-after: avoid-page;    
+}    
+
+table, pre, blockquote {      
+page-break-inside: avoid;      
+break-inside: avoid-page;    
+}    
+.page-break {      
+page-break-before: always;
+break-before: page;       
+
+}    
+
+/* Espaço interno para não sobrepor header/footers se usar fixed */    
+.content {      
+/* Ajuste conforme altura real dos seus cabeçalho/rodapé */      
+/*padding-top: 24mm;   */
+/* espaço para header */      
+padding-bottom: 18mm;
+/* espaço para footer */    
+}  
+}  
+
+/* ---------- Estilização de conteúdo ---------- */ 
+h1 {    
+font-size: 18pt;    
+margin: 0 0 8mm;  
+}  
+h2 {    
+font-size: 14pt;    
+margin: 6mm 0 4mm;  
+}  
+p, li {    
+font-size: 11pt;    
+line-height: 1.35;  
+}  
+
+/* Cabeçalho/Rodapé visuais */  
+header.print-header {    
+text-align: left;    
+font-size: 10pt;    
+/*border-bottom: 1px solid #ccc;    */
+padding: 0mm 0;    
+/*background: #fafafa;  */
+background: transparent !important;  
+}  
+
+footer.print-footer {    
+text-align: center;    
+font-size: 10pt;    
+/*border-top: 1px solid #ccc;    */
+padding: 4mm 0;    
+/*background: #fafafa;  */
+background: transparent !important;  
+}  
+
+/* Numeração de páginas (suporte prático via CSS counters) */ 
+/*
+body {    
+	counter-reset: page;  
+}  
+footer.print-footer::after {    
+counter-increment: page;    
+content: "Página " counter(page);  
+}
+
+*/
+
+.logotipo {
+	width: 25%;
+	display: flex;
+  justify-content: center;
+	
+}
+.margem-top{
+	margin-top: 20px;
+}
+
+.text-end{
+	text-align: end;
+}
+
+.text-center{
+	text-align: center;
+}
+
+.paragrafo{
+	text-align: justify;
+	text-indent: 2em;
+	margin-bottom: 15px;
+}
+
+.negrito{
+	font-weight: bold;
+}
+table {
+  border-collapse: collapse;
+  border: 1px solid black;
+} 
+
+th,td {
+  border: 1px solid black;
+}
+
+.tabela{
+text-align: center;
+  table-layout: fixed;
+  width: 100%;  
+}
+
+.padding-top{
+	padding-top: 15px;
+}
+
+.text-start{
+	text-align: left;
+}
