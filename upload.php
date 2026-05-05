@@ -22,7 +22,7 @@ include 'menuTop.php';
 
 <body>
 <?php
-include 'view/conteudoIndex.php';
+include 'view/conteudoUpload.php';
 include 'view/modalResposta.php';
 //include 'scripts.html';
 include 'footer.php';
