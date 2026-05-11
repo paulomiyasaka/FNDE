@@ -1,7 +1,5 @@
 <!doctype html>
 <html lang="pt-BR">
-
-
     
 <?php
 include 'header.php';
@@ -22,13 +20,13 @@ include 'menuTop.php';
 
 <body>
 <?php
-include 'view/conteudoIndex.php';
+include 'view/conteudoAgrupar.php';
 include 'view/modalResposta.php';
 //include 'scripts.html';
 include 'footer.php';
 ?>
 
-
+<script type="module" src="view/js/agrupamento.js"></script>
 </body>
 </html>
 
