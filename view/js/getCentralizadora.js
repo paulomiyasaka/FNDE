@@ -1,12 +1,12 @@
-export async function getSuperintendencia() {
+export async function getCentralizadora() {
 	
     try{
-        const url = 'src/Controller/GetSuperintendencia.php';
+        const url = 'src/Controller/GetCentralizadora.php';
         const response = await fetch(url, {
             method: 'POST'
         });
         const data = await response.json();
-        //console.log("Dados: "+data.se);
+        //console.log("Dados: "+data.centralizadora);
         if (data.resultado) {
             return data; 
         } else {

@@ -20,7 +20,7 @@ class Login
 		$matricula = $this->matricula;
 
 		$funcoesSQL = new funcoesSQL();
-		$sql = "SELECT u.matricula, u.nome, u.sigla_se, u.perfil FROM tb_usuario as u WHERE u.matricula = :matricula";
+		$sql = "SELECT u.matricula, u.nome, u.sigla_se, u.perfil FROM tb_usuarios as u WHERE u.matricula = :matricula";
 
 		$dados = array(":matricula" => $matricula);
 		$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);

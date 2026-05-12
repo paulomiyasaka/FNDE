@@ -9,21 +9,16 @@
             <div class="row g-3">
 
                 <div class="col-md-4">
-                    <label class="form-label">Estado</label>
-                    <select id="estado" class="form-select fs-5">
-                        <option value="">Selecione</option>
-                        <option>DF</option>
-                        <option>GO</option>
-                        <option>SP</option>
-                    </select>
+                    <label class="form-label">SE:</label>
+                    <select id="select_superintendencia" class="form-select" name="superintendencias[]" required>
+                  <option value="" selected disabled>Selecione</option>
+                </select>
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Centralizadora</label>
-                    <select id="centralizadora" class="form-select fs-5">
-                        <option value="">Selecione</option>
-                        <option>Central A</option>
-                        <option>Central B</option>
+                    <label class="form-label">Centralizadora:</label>
+                    <select id="select_centralizadora" name="centralizadoras[]" class="form-select fs-5" required>
+                        <option value="" selected disabled>Selecione</option>
                     </select>
                 </div>
 

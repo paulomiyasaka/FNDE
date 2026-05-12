@@ -1,11 +1,17 @@
+import { getSuperintendencia } from './getSuperintendencia.js';
+import { getCentralizadora } from './getCentralizadora.js';
+
 let paletes = [];
 let pesoTotal = 0;
 let limiteAtingido = false;
+let opcoesSE = "";
+let opcoesCentralizadora = "";
 
-const estado = document.getElementById("estado");
-const centralizadora = document.getElementById("centralizadora");
+const selectSuperintendencia = document.getElementById("select_superintendencia");
+const dadosSE = await getSuperintendencia();
+const selectCentralizadora = document.getElementById("select_centralizadora");
+
 const codigoPalete = document.getElementById("codigoPalete");
-
 const totalPaletesEl = document.getElementById("totalPaletes");
 const pesoTotalEl = document.getElementById("pesoTotal");
 const tabelaPaletes = document.getElementById("tabelaPaletes");
@@ -26,13 +32,55 @@ const modalTitulo = document.getElementById("modalTitulo");
 const modalMensagem = document.getElementById("modalMensagem");
 const modalConfirmar = document.getElementById("modalConfirmar");
 
+
+if (selectSuperintendencia && dadosSE.resultado) {
+            let htmlOptionsSE = '<option value="" selected disabled>Selecione</option>';
+            
+            dadosSE.se.forEach(item => {
+                htmlOptionsSE += `<option value="${item.siglaSe}">${item.siglaSe}</option>`;
+            });
+
+            selectSuperintendencia.innerHTML = htmlOptionsSE;
+
+            opcoesSE = dadosSE.se.map(item => 
+                `<option value="${item.siglaSe}">${item.siglaSe}</option>`
+            ).join('');
+
+        }//select_destinatario
+
+
+selectSuperintendencia.onchange = async () => {
+
+    const se = selectSuperintendencia.value;
+
+    const dadosCentralizadora = await getCentralizadora();
+    
+    if (dadosCentralizadora.resultado) {
+
+            let htmlOptionsCentralizadora = '<option value="" selected disabled>Selecione</option>';
+            
+            dadosCentralizadora.centralizadora.forEach(item => {
+                htmlOptionsCentralizadora += `<option value="${item.nomeCentralizadora}">${item.nomeCentralizadora}</option>`;
+            });
+
+            selectCentralizadora.innerHTML = htmlOptionsCentralizadora;
+
+            opcoesCentralizadora = dadosCentralizadora.centralizadora.map(item => 
+                `<option value="${item.nomeCentralizadora}">${item.nomeCentralizadora}</option>`
+            ).join('');
+
+        }//select_centralizadora
+
+};
+
+
 btnAbrir.onclick = () => {
-    if (!estado.value || !centralizadora.value) {
-        mostrarToast("Preencha Estado e Centralizadora", "erro");
+    if (!selectSuperintendencia.value || !selectCentralizadora.value) {
+        mostrarToast("Preencha SE e Centralizadora", "erro");
         return;
     }
 
-    estado.disabled = centralizadora.disabled = true;
+    selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
     btnAbrir.classList.add("d-none");
     btnCancelar.classList.remove("d-none");
     btnFechar.classList.remove("d-none");
@@ -51,12 +99,20 @@ btnInserir.onclick = inserirPalete;
 function inserirPalete() {
     if (limiteAtingido) return;
 
-    const codigo = codigoPalete.value.trim();
-    if (codigo.length < 22) return;
+    const codigo = codigoPalete.value;
+    //if (codigo.length != 97) return;
+    if (codigo.length != 97) {
+        abrirModal(
+            "Palete inválido",
+            `Verifique a informação e tente novamente`,
+            () => atualizarTela()
+        );
+        return;
+    }
 
     const numero = codigo.substring(0, 11);
     const peso = parseFloat(codigo.substring(11, 22));
-
+ 
     const existente = paletes.find(p => p.numero === numero);
     if (existente) {
         abrirModal(
