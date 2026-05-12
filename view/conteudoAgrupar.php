@@ -10,14 +10,14 @@
 
                 <div class="col-md-4">
                     <label class="form-label">SE:</label>
-                    <select id="select_superintendencia" class="form-select" name="superintendencias[]" required>
+                    <select id="select_superintendencia" class="form-select fs-5" name="superintendencias" required>
                   <option value="" selected disabled>Selecione</option>
                 </select>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Centralizadora:</label>
-                    <select id="select_centralizadora" name="centralizadoras[]" class="form-select fs-5" required>
+                    <select id="select_centralizadora" name="centralizadoras" class="form-select fs-5" required>
                         <option value="" selected disabled>Selecione</option>
                     </select>
                 </div>
@@ -57,6 +57,9 @@
                         <th>Registro</th>
                         <th>Palete</th>
                         <th>Peso (kg)</th>
+                        <th>Centralizadora</th>
+                        <th>Superintendência</th>
+                        <th>Código Palete</th>
                     </tr>
                 </thead>
                 <tbody id="tabelaPaletes"></tbody>
@@ -77,7 +80,7 @@
             <div id="modalMensagem" class="modal-body"></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary fs-5" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-primary fs-5" id="modalConfirmar">Confirmar</button>
+                <button class="btn btn-primary fs-5" id="modalConfirmarAgrupamento">Confirmar</button>
             </div>
         </div>
     </div>

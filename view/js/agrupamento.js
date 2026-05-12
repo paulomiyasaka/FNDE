@@ -30,7 +30,7 @@ const toast = new bootstrap.Toast(toastEl);
 const modal = new bootstrap.Modal(document.getElementById("modalConfirm"));
 const modalTitulo = document.getElementById("modalTitulo");
 const modalMensagem = document.getElementById("modalMensagem");
-const modalConfirmar = document.getElementById("modalConfirmar");
+const modalConfirmar = document.getElementById("modalConfirmarAgrupamento");
 
 
 if (selectSuperintendencia && dadosSE.resultado) {
@@ -110,8 +110,11 @@ function inserirPalete() {
         return;
     }
 
-    const numero = codigo.substring(0, 11);
+    const numero = codigo.substring(0, 11).toUpperCase();
     const peso = parseFloat(codigo.substring(11, 22));
+    const siglaCentralizadora = codigo.substring(91, 94).toUpperCase();
+    const siglaSe = codigo.substring(94).toUpperCase();
+    const codigoCompleto = codigo.toUpperCase();
  
     const existente = paletes.find(p => p.numero === numero);
     if (existente) {
@@ -136,7 +139,7 @@ function inserirPalete() {
         return;
     }
 
-    paletes.push({ numero, peso });
+    paletes.push({ numero, peso, siglaCentralizadora, siglaSe });
     pesoTotal += peso;
 
     codigoPalete.value = "";
@@ -165,6 +168,9 @@ function atualizarTela() {
                 <td>${registro}</td>
                 <td>${p.numero}</td>
                 <td>${p.peso.toFixed(3)}</td>
+                <td>${p.siglaCentralizadora}</td>
+                <td>${p.siglaSe}</td>
+                <td>${p.codigoCompleto}</td>
             </tr>`;
     });
 }
