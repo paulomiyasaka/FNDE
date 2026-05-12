@@ -10,7 +10,7 @@ use FNDE\Utils\Validacoes;
 $validacoes = new Validacoes();
 //$validacoes->validar();
 $validacoes->interromperReenvioFormulario();
-$validacoes->verificarUsuarioLogado();
+//$validacoes->verificarUsuarioLogado();
 $usuario['perfil'] = $_SESSION['perfil_usuario'];
 $usuario['nome'] = $_SESSION['nome'];
 $usuario['matricula'] = $_SESSION['matricula'];

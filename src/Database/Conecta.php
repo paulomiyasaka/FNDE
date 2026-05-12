@@ -15,7 +15,9 @@ public function __construct(){
 	$this->host = '127.0.0.1';
 	$this->senha = "";
 	$this->usuario = "root";
-	$this->bancoDados = "db_digitalizacao";
+	//$this->bancoDados = "db_digitalizacao";
+	$this->bancoDados = "db_fnde";
+
 	
 	self::conecta();
 	
