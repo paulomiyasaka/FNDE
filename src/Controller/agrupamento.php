@@ -4,17 +4,16 @@ header('Content-Type: application/json; charset=utf-8');
 
 require '../../vendor/autoload.php';
 
-use FNDE\Utils\GetCentralizadora;
+use FNDE\Services\Agrupamento;
 
 $se = $_POST['se'] ?? '';
+$centralizadora = $_POST['centralizadora'] ?? '';
 
 $retorno = ['resultado' => false, 'centralizadora' => null];
     
 $getCentralizadora = new getCentralizadora();
 $getCentralizadora->setSE($se);
 $centralizadora = $getCentralizadora->retornarCentralizadora();
-
-
 
 if ($centralizadora) {
     $retorno = [

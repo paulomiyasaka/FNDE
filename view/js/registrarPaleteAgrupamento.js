@@ -1,9 +1,9 @@
-export async function getCentralizadora(se) {
+export async function registrarPaleteAgrupamento(palete) {
 	
     const formData = new FormData();
-    formData.append('se', se);
+    formData.append('palete', palete);
     try{
-        const url = 'src/Controller/GetCentralizadora.php';
+        const url = 'src/Controller/registrarPaleteAgrupamento.php';
         const response = await fetch(url, {
             method: 'POST',
             body: formData

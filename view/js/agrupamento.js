@@ -1,5 +1,8 @@
 import { getSuperintendencia } from './getSuperintendencia.js';
 import { getCentralizadora } from './getCentralizadora.js';
+import { RegistrarAgrupamento } from './registrarAgrupamento.js';
+import { getSession } from './getSession.js';
+
 
 let paletes = [];
 let pesoTotal = 0;
@@ -7,6 +10,7 @@ let limiteAtingido = false;
 let opcoesSE = "";
 let opcoesCentralizadora = "";
 
+const pesoMaximo = 950;
 const selectSuperintendencia = document.getElementById("select_superintendencia");
 const dadosSE = await getSuperintendencia();
 const selectCentralizadora = document.getElementById("select_centralizadora");
@@ -52,7 +56,7 @@ if (selectSuperintendencia && dadosSE.resultado) {
 selectSuperintendencia.onchange = async () => {
 
     const se = selectSuperintendencia.value;
-    const dadosCentralizadora = await getCentralizadora();
+    const dadosCentralizadora = await getCentralizadora(se);
     
     if (dadosCentralizadora.resultado) {
 
@@ -73,11 +77,16 @@ selectSuperintendencia.onchange = async () => {
 };
 
 
-btnAbrir.onclick = () => {
+btnAbrir.onclick = async () => {
     if (!selectSuperintendencia.value || !selectCentralizadora.value) {
         mostrarToast("Preencha SE e Centralizadora", "erro");
         return;
     }
+    const session = await getSession();
+    const matricula = session.matricula;
+    const agrupamento = new RegistrarAgrupamento();
+    agrupamento.setDados(matricula, selectSuperintendencia, selectCentralizadora, 'ABERTO');
+    agrupamento.registrar();
 
     selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
     btnAbrir.classList.add("d-none");
@@ -125,7 +134,7 @@ function inserirPalete() {
         return;
     }
 
-    if ((pesoTotal + peso) > 950) {
+    if ((pesoTotal + peso) > pesoMaximo) {
         limiteAtingido = true;
         codigoPalete.disabled = true;
 
