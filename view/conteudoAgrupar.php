@@ -57,9 +57,9 @@
                         <th>Registro</th>
                         <th>Palete</th>
                         <th>Peso (kg)</th>
-                        <th>Centralizadora</th>
+                        <th>Sigla Centralizadora</th>
                         <th>Superintendência</th>
-                        <th>Código Palete</th>
+                        <th class="fs-6 overflow-auto">Código Palete</th>
                     </tr>
                 </thead>
                 <tbody id="tabelaPaletes"></tbody>

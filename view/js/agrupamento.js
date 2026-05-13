@@ -52,7 +52,6 @@ if (selectSuperintendencia && dadosSE.resultado) {
 selectSuperintendencia.onchange = async () => {
 
     const se = selectSuperintendencia.value;
-
     const dadosCentralizadora = await getCentralizadora();
     
     if (dadosCentralizadora.resultado) {
@@ -139,7 +138,7 @@ function inserirPalete() {
         return;
     }
 
-    paletes.push({ numero, peso, siglaCentralizadora, siglaSe });
+    paletes.push({ numero, peso, siglaCentralizadora, siglaSe, codigoCompleto });
     pesoTotal += peso;
 
     codigoPalete.value = "";
