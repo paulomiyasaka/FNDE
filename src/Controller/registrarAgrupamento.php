@@ -7,8 +7,15 @@ require '../../vendor/autoload.php';
 use FNDE\Services\RegistrarAgrupamento;
 
 $retorno = ['resultado' => false, 'agrupamento' => null];
-    
-$agrupamento = new RegistrarAgrupamento();
+
+$matricula = $_POST['matricula'] ?? '';
+$nome_centralizadora = $_POST['centralizadora'] ?? '';
+$sigla_se = $_POST['se'] ?? '';
+$status = $_POST['status'] ?? '';
+
+var_dump($nome_centralizadora);
+
+$agrupamento = new RegistrarAgrupamento($matricula, $nome_centralizadora, $sigla_se, $status);
 $criar = $agrupamento->criar();
 if($criar){
     $retorno['resultado'] = TRUE;

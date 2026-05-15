@@ -10,14 +10,14 @@
 
                 <div class="col-md-4">
                     <label class="form-label">SE:</label>
-                    <select id="select_superintendencia" class="form-select fs-5" name="superintendencias" required>
+                    <select id="select_superintendencia" class="form-select fs-5" name="superintendencia" required>
                   <option value="" selected disabled>Selecione</option>
                 </select>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Centralizadora:</label>
-                    <select id="select_centralizadora" name="centralizadoras" class="form-select fs-5" required>
+                    <select id="select_centralizadora" name="centralizadora" class="form-select fs-5" required>
                         <option value="" selected disabled>Selecione</option>
                     </select>
                 </div>

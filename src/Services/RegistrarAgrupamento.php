@@ -18,21 +18,11 @@ class RegistrarAgrupamento
 		$this->matricula = $matricula;
         $this->nome_centralizadora = $nome_centralizadora;
         $this->sigla_se = $sigla_se;
-        $this->status = $status;
-
-	}
-
-	public function criar(): Agrupamento
-	{
-		$matricula = $this->matricula;
-        $nome_centralizadora = $this->nome_centralizadora;
-        $sigla_se = $this->sigla_se;
-        $status = $this->status;
-
-		$funcoesSQL = new funcoesSQL();
-		$sql = "INSERT INTO tb_agrupamento AS a (a.matricula, a.nome_centralizadora, a.sigla_se, a.status) VALUES (:matricula, :nome_centralizadora, :sigla_se, :status)";
+		$this->status = $status;
+		$sql = "INSERT INTO tb_agrupamento (matricula, nome_centralizadora, sigla_se, status) VALUES (:matricula, :nome_centralizadora, :sigla_se, :status)";
 		$dados = array(":matricula" => $matricula, ":nome_centralizadora" => $nome_centralizadora, ":sigla_se" => $sigla_se, ":status" => $status);
-    	$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
+    	$funcoesSQL = new FuncoesSQL();
+		$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
 	        
         return Agrupamento::fromArray($resultado);
 
