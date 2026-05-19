@@ -9,12 +9,12 @@ use FNDE\Services\RegistrarAgrupamento;
 $retorno = ['resultado' => false, 'agrupamento' => null];
 
 $matricula = $_POST['matricula'] ?? '';
-$nome_centralizadora = $_POST['centralizadora'] ?? '';
+$sigla_centralizadora = $_POST['centralizadora'] ?? '';
 $sigla_se = $_POST['se'] ?? '';
 $status = $_POST['status'] ?? '';
 
 
-$agrupamento = new RegistrarAgrupamento($matricula, $nome_centralizadora, $sigla_se, $status);
+$agrupamento = new RegistrarAgrupamento($matricula, $sigla_centralizadora, $sigla_se, $status);
 $criar = $agrupamento->criar();
 if($criar){
     $retorno['resultado'] = TRUE;

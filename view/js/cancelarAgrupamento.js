@@ -1,27 +1,20 @@
-export class RegistrarAgrupamento {
+export class CancelarAgrupamento {
     constructor() {
-        this.matricula = '';
-        this.se = '';
-        this.centralizadora = '';
-        this.status = '';
+        this.id = 0;
+        this.status = 'CANCELADO';
     }
 
-    setDados(matricula, se, centralizadora, status) {
-        this.matricula = matricula;
-        this.se = se;
-        this.centralizadora = centralizadora;
-        this.status = status;
+    setDados(id) {
+        this.id = id;
     }
 
-    async registrar() {
+    async cancelar() {
         const formData = new FormData();
-        formData.append('matricula', this.matricula);
-        formData.append('se', this.se);
-        formData.append('centralizadora', this.centralizadora);
+        formData.append('id', this.id);
         formData.append('status', this.status);
         //alert(this.matricula + " - SE: "+this.se+ " - centralizadora: " +this.centralizadora+" - status: "+this.status);
         try{
-            const url = 'src/Controller/registrarAgrupamento.php';
+            const url = 'src/Controller/cancelarAgrupamento.php';
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData

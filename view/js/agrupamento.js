@@ -1,6 +1,9 @@
 import { getSuperintendencia } from './getSuperintendencia.js';
 import { getCentralizadora } from './getCentralizadora.js';
 import { RegistrarAgrupamento } from './registrarAgrupamento.js';
+import { CancelarAgrupamento } from './cancelarAgrupamento.js';
+import { FecharAgrupamento } from './fecharAgrupamento.js';
+import { RegistrarPalete } from './registrarPalete.js';
 import { getSession } from './getSession.js';
 
 
@@ -11,6 +14,9 @@ let opcoesSE = "";
 let opcoesCentralizadora = "";
 
 const pesoMaximo = 950;
+let id = 0;
+const campoId = document.getElementById("id_agrupamento");
+
 const selectSuperintendencia = document.getElementById("select_superintendencia");
 const dadosSE = await getSuperintendencia();
 const selectCentralizadora = document.getElementById("select_centralizadora");
@@ -63,13 +69,13 @@ selectSuperintendencia.onchange = async () => {
             let htmlOptionsCentralizadora = '<option value="" selected disabled>Selecione</option>';
             
             dadosCentralizadora.centralizadora.forEach(item => {
-                htmlOptionsCentralizadora += `<option value="${item.nomeCentralizadora}">${item.nomeCentralizadora}</option>`;
+                htmlOptionsCentralizadora += `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`;
             });
 
             selectCentralizadora.innerHTML = htmlOptionsCentralizadora;
 
             opcoesCentralizadora = dadosCentralizadora.centralizadora.map(item => 
-                `<option value="${item.nomeCentralizadora}">${item.nomeCentralizadora}</option>`
+                `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`
             ).join('');
 
         }//select_centralizadora
@@ -86,14 +92,16 @@ btnAbrir.onclick = async () => {
     const matricula = session.matricula;
     const agrupamento = new RegistrarAgrupamento();
     agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
-    
-    if(agrupamento.registrar()){
+    id = await agrupamento.registrar();
+
+    if(id){                
+        campoId.innerText = id;
         selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
         btnAbrir.classList.add("d-none");
         btnCancelar.classList.remove("d-none");
         btnFechar.classList.remove("d-none");
         areaLancamento.classList.remove("d-none");
-
+        mostrarToast("Agrupamento aberto", "sucesso");
     }
 
     
@@ -123,10 +131,17 @@ function inserirPalete() {
     }
 
     const numero = codigo.substring(0, 11).toUpperCase();
-    const peso = parseFloat(codigo.substring(11, 22));
+    const peso = parseFloat(codigo.substring(11, 22)).toFixed(3);
+    const pesoMinimoEstimado = parseFloat(codigo.substring(22, 33)).toFixed(3);
+    const pesoMaximoEstimado = parseFloat(codigo.substring(33, 44)).toFixed(3);
+    const encomendaInicial = codigo.substring(44, 57).toUpperCase();
+    const encomendaFinal = codigo.substring(57, 70).toUpperCase();
+    const codigoSKU = codigo.substring(70, 85).toUpperCase();
+    const quantidadeEncomendas = parseFloat(codigo.substring(85, 89)).toFixed(3);
+    const faseUnitizacao = parseFloat(codigo.substring(89, 91)).toFixed(3);
     const siglaCentralizadora = codigo.substring(91, 94).toUpperCase();
-    const siglaSe = codigo.substring(94).toUpperCase();
-    const codigoCompleto = codigo.toUpperCase();
+    const siglaSe = codigo.substring(94, 97).toUpperCase();
+    
  
     const existente = paletes.find(p => p.numero === numero);
     if (existente) {
@@ -193,9 +208,17 @@ btnFechar.onclick = () => {
         `Confirma o fechamento do agrupamento?<br><br>
          <strong>Paletes:</strong> ${paletes.length}<br>
          <strong>Peso Total:</strong> ${pesoTotal.toFixed(3)} kg`,
-        () => {
-            mostrarToast("Agrupamento fechado", "sucesso");
-            location.reload();
+        async () => {
+            const fecharAgrupamento = new FecharAgrupamento();
+            fecharAgrupamento.setDados(id, 'CANCELADO');            
+            const fechar = await fecharAgrupamento.fechar();
+            if(fechar){
+                mostrarToast("Agrupamento fechado", "sucesso");
+                location.reload();
+            }else{
+                mostrarToast("Erro ao fechar o agrupamento", "erro");
+            }            
+            
         }
     );
 };
@@ -205,21 +228,16 @@ btnCancelar.onclick = () => {
         "Cancelar Agrupamento",
         "Todos os paletes registrados serão descartados.",
         async () => {
-            const session = await getSession();
-            const matricula = session.matricula;
-            const agrupamento = new RegistrarAgrupamento();
-            agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
+            const cancelarAgrupamento = new CancelarAgrupamento();
+            cancelarAgrupamento.setDados(id, 'CANCELADO');            
+            const cancelar = await cancelarAgrupamento.cancelar();
+            if(cancelar){
+                mostrarToast("Agrupamento cancelado", "sucesso");
+                location.reload();
+            }else{
+                mostrarToast("Erro ao cancelar o agrupamento", "erro");
+            }            
             
-            if(agrupamento.cancelar()){
-                selectSuperintendencia.disabled = selectCentralizadora.disabled = false;
-                btnAbrir.classList.remove("d-none");
-                btnCancelar.classList.add("d-none");
-                btnFechar.classList.add("d-none");
-                areaLancamento.classList.add("d-none");
-
-            }
-            
-            location.reload()
         }
 
 

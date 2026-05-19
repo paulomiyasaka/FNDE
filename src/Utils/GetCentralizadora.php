@@ -24,7 +24,7 @@ class GetCentralizadora
         $se = $this->getSE();
 
         $funcoesSQL = new funcoesSQL();
-        $sql = "SELECT s.nome_centralizadora, s.sigla_se FROM tb_centralizadora as s WHERE s.sigla_se = :se ORDER BY s.nome_centralizadora ASC";
+        $sql = "SELECT s.sigla_centralizadora, s.nome_centralizadora, s.sigla_se FROM tb_centralizadora as s WHERE s.sigla_se = :se ORDER BY s.nome_centralizadora ASC";
 
         $dados = array(':se' => $se);
         $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);      

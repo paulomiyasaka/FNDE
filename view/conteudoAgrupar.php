@@ -37,12 +37,18 @@
         <div class="card-body fs-5">
 
             <div class="row mb-3">
+                <div class="col-md-12 alert alert-secondary fs-5">
+                    ID Agrupamento: <strong id="id_agrupamento"></strong>
+                </div>
+            </div>
+
+            <div class="row mb-3">
                 <div class="col-md-6 alert alert-secondary fs-5">
                     Paletes: <strong id="totalPaletes">0</strong>
                 </div>
                 <div class="col-md-6 alert alert-secondary fs-5">
                     Peso Total (kg): <strong id="pesoTotal">0.000</strong>
-                </div>
+                </div>                
             </div>
 
             <!-- INPUT + BOTÃO -->
