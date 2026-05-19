@@ -19,7 +19,7 @@ export class RegistrarAgrupamento {
         formData.append('se', this.se);
         formData.append('centralizadora', this.centralizadora);
         formData.append('status', this.status);
-        alert(this.matricula + " - SE: "+this.se+ " - centralizadora: " +this.centralizadora+" - status: "+this.status);
+        //alert(this.matricula + " - SE: "+this.se+ " - centralizadora: " +this.centralizadora+" - status: "+this.status);
         try{
             const url = 'src/Controller/registrarAgrupamento.php';
             const response = await fetch(url, {

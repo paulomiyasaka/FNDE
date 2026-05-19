@@ -22,7 +22,7 @@ class RegistrarAgrupamento
 		$sql = "INSERT INTO tb_agrupamento (matricula, nome_centralizadora, sigla_se, status) VALUES (:matricula, :nome_centralizadora, :sigla_se, :status)";
 		$dados = array(":matricula" => $matricula, ":nome_centralizadora" => $nome_centralizadora, ":sigla_se" => $sigla_se, ":status" => $status);
     	$funcoesSQL = new FuncoesSQL();
-		$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
+		$resultado = $funcoesSQL->SQL($sql, $dados);
 	        
         return Agrupamento::fromArray($resultado);
 

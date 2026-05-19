@@ -85,7 +85,7 @@ btnAbrir.onclick = async () => {
     const session = await getSession();
     const matricula = session.matricula;
     const agrupamento = new RegistrarAgrupamento();
-    agrupamento.setDados(matricula, selectSuperintendencia, selectCentralizadora, 'ABERTO');
+    agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
     agrupamento.registrar();
 
     selectSuperintendencia.disabled = selectCentralizadora.disabled = true;

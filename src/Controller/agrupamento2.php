@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require '../../vendor/autoload.php';
 
-use FNDE\Services\Agrupamento;
+use FNDE\Services\getCentralizadora;
 
 $se = $_POST['se'] ?? '';
 $centralizadora = $_POST['centralizadora'] ?? '';
