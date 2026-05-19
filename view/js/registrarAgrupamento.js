@@ -29,7 +29,7 @@ export class RegistrarAgrupamento {
             const data = await response.json();
             //console.log("Dados: "+data.centralizadora);
             if (data.resultado) {
-                return data; 
+                return data.resultado; 
             } else {
                 console.error("Erro no PHP:", data.mensagem);
                 return null;

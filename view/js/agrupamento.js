@@ -86,13 +86,17 @@ btnAbrir.onclick = async () => {
     const matricula = session.matricula;
     const agrupamento = new RegistrarAgrupamento();
     agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
-    agrupamento.registrar();
+    
+    if(agrupamento.registrar()){
+        selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
+        btnAbrir.classList.add("d-none");
+        btnCancelar.classList.remove("d-none");
+        btnFechar.classList.remove("d-none");
+        areaLancamento.classList.remove("d-none");
 
-    selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
-    btnAbrir.classList.add("d-none");
-    btnCancelar.classList.remove("d-none");
-    btnFechar.classList.remove("d-none");
-    areaLancamento.classList.remove("d-none");
+    }
+
+    
 };
 
 codigoPalete.addEventListener("keypress", e => {
@@ -200,7 +204,26 @@ btnCancelar.onclick = () => {
     abrirModal(
         "Cancelar Agrupamento",
         "Todos os paletes registrados serão descartados.",
-        () => location.reload()
+        async () => {
+            const session = await getSession();
+            const matricula = session.matricula;
+            const agrupamento = new RegistrarAgrupamento();
+            agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
+            
+            if(agrupamento.cancelar()){
+                selectSuperintendencia.disabled = selectCentralizadora.disabled = false;
+                btnAbrir.classList.remove("d-none");
+                btnCancelar.classList.add("d-none");
+                btnFechar.classList.add("d-none");
+                areaLancamento.classList.add("d-none");
+
+            }
+            
+            location.reload()
+        }
+
+
+
     );
 };
 
