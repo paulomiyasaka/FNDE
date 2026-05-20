@@ -7,10 +7,10 @@ class Agrupamento
 
     public function __construct
     (
-        public readonly int $id_agrupamento,
+        public readonly int $idAgrupamento,
         public readonly int $matricula,
-        public readonly string $nome_centralizadora,
-        public readonly string $sigla_se,
+        public readonly string $siglaCentralizadora,
+        public readonly string $siglaSe,
         public readonly string $status
 
     ) {}
@@ -20,7 +20,7 @@ class Agrupamento
         return new self(
             idAgrupamento: $dados->id_agrupamento,
             matricula: $dados->matricula,
-            nomeCentralizadora: $dados->nome_centralizadora,
+            siglaCentralizadora: $dados->sigla_centralizadora,
             siglaSe: $dados->sigla_se,
             status: $dados->status
 

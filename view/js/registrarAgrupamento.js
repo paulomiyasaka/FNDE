@@ -41,4 +41,30 @@ export class RegistrarAgrupamento {
             return null;
         }
     }
+
+    async listar() {
+        
+        try{
+            const url = 'src/Controller/listarAgrupamento.php';
+            const response = await fetch(url, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            //console.log("Dados: "+data.centralizadora);
+            if (data.resultado) {
+                //return data.resultado; 
+                return data.agrupamento; 
+            } else {
+                console.error("Erro no PHP:", data.mensagem);
+                return null;
+            }    
+
+        }catch(error){
+            console.error("Erro na requisição:", error);
+            return null;
+        }
+    }
+
+
+
 }

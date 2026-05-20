@@ -20,13 +20,14 @@ include 'menuTop.php';
 
 <body>
 <?php
-include 'view/conteudoAgrupar.php';
+include 'view/conteudoAgrupar2.php';
 include 'view/modalResposta.php';
 //include 'scripts.html';
 include 'footer.php';
 ?>
 
 <script type="module" src="view/js/agrupamento.js"></script>
+<script type="module" src="view/js/listarAgrupamento.js"></script>
 </body>
 </html>
 
