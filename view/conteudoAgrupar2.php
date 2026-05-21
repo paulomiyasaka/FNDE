@@ -9,7 +9,8 @@
             <table class="table table-sm table-bordered fs-5" id="tabelaAgrupamentos">
                 <thead class="table-light">
                     <tr>
-                        <th>Matrícula / ID</th>
+                        <th>ID</th>
+                        <th>Matrícula</th>
                         <th>SE</th>
                         <th>Centralizadora</th>
                         <th>Status</th>

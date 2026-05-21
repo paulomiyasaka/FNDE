@@ -38,12 +38,20 @@ async function carregarListaAgrupamentos() {
         const linha = document.createElement('tr');
         
         // Define uma cor bonitinha com Bootstrap dependendo do status
-        let badgeColor = item.status === 'ABERTO' ? 'bg-success' : 'bg-secondary';
+        let badgeColor = "";
+        if(item.status === 'ABERTO'){
+            badgeColor = 'bg-success';
+        }else if(item.status === 'FECHADO'){
+            badgeColor = 'bg-primary';
+        }else if(item.status === 'CANCELADO'){
+            badgeColor = 'bg-warning text-dark';
+        }
 
         linha.innerHTML = `
-            <td>${item.matricula || item.idAgrupamento}</td>
-            <td>${item.Siglase}</td>
-            <td>${item.SiglaCentralizadora}</td>
+            <td>${item.idAgrupamento}</td>
+            <td>${item.matricula}</td>
+            <td>${item.siglaSe}</td>
+            <td>${item.siglaCentralizadora}</td>
             <td><span class="badge ${badgeColor}">${item.status}</span></td>
         `;
         tbody.appendChild(linha);
