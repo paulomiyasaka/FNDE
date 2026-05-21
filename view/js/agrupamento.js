@@ -116,7 +116,7 @@ codigoPalete.addEventListener("keypress", e => {
 
 btnInserir.onclick = inserirPalete;
 
-function inserirPalete() {
+async function inserirPalete() {
     if (limiteAtingido) return;
 
     const codigo = codigoPalete.value;
@@ -166,12 +166,21 @@ function inserirPalete() {
         return;
     }
 
-    paletes.push({ numero, peso, siglaCentralizadora, siglaSe, codigoCompleto });
+    paletes.push({ numero, peso, siglaCentralizadora, siglaSe });
     pesoTotal += peso;
+
+    const registrarPalete = new RegistrarPalete();
+    registrarPalete.setDados(numero, peso, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, siglaSe);
+    const registrar = await registrarPalete.registrar();
 
     codigoPalete.value = "";
     atualizarTela();
-    mostrarToast("Palete inserido", "sucesso");
+    if(registrar.resultado){
+        mostrarToast("Palete inserido", "sucesso");
+    }else{
+        mostrarToast("Erro ao registrar o palete", "erro");
+    }
+    
 }
 
 function removerPalete(numero) {
@@ -184,7 +193,8 @@ function removerPalete(numero) {
 
 function atualizarTela() {
     totalPaletesEl.textContent = paletes.length;
-    pesoTotalEl.textContent = pesoTotal.toFixed(3);
+    //pesoTotalEl.textContent = pesoTotal.toFixed(3);
+    pesoTotalEl.textContent = pesoTotal;
 
     tabelaPaletes.innerHTML = "";
 
@@ -194,7 +204,7 @@ function atualizarTela() {
             <tr>
                 <td>${registro}</td>
                 <td>${p.numero}</td>
-                <td>${p.peso.toFixed(3)}</td>
+                <td>${p.peso}</td>
                 <td>${p.siglaCentralizadora}</td>
                 <td>${p.siglaSe}</td>
                 <td>${p.codigoCompleto}</td>

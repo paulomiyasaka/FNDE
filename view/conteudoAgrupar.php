@@ -65,7 +65,6 @@
                         <th>Peso (kg)</th>
                         <th>Sigla Centralizadora</th>
                         <th>Superintendência</th>
-                        <th class="fs-6 overflow-auto">Código Palete</th>
                     </tr>
                 </thead>
                 <tbody id="tabelaPaletes"></tbody>

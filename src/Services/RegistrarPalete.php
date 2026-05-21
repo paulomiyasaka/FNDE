@@ -8,7 +8,7 @@ use FNDE\Models\Palete;
 class RegistrarPalete
 {
 
-	    private string $numero_palete;
+	private string $numero_palete;
         private float $peso_previsto;
         private float $peso_minimo;
         private float $peso_maximo;
@@ -43,7 +43,7 @@ class RegistrarPalete
 	{
 		$sql = "INSERT INTO tb_paletes (numero_palete, peso_previsto, peso_minimo, peso_maximo, encomenda_inicial, encomenda_final, sku, quantidade_encomendas, fase_unitizacao, sigla_centralizadora, sigla_se) VALUES (:numero_palete, :peso_previsto, :peso_minimo, :peso_maximo, :encomenda_inicial, :encomenda_final, :sku, :quantidade_encomendas, :fase_unitizacao, :sigla_centralizadora, :sigla_se)";
 		$dados = array(":numero_palete" => $this->numero_palete, ":peso_previsto" => $this->peso_previsto, ":peso_minimo" => $this->peso_minimo, ":peso_maximo" => $this->peso_maximo, ":encomenda_inicial" => $this->encomenda_inicial, ":encomenda_final" => $this->encomenda_final, ":sku" => $this->sku, ":quantidade_encomendas" => $this->quantidade_encomendas, ":fase_unitizacao" => $this->fase_unitizacao, ":sigla_centralizadora" => $this->sigla_centralizadora, ":sigla_se" => $this->sigla_se);
-    	$funcoesSQL = new FuncoesSQL();
+    	        $funcoesSQL = new FuncoesSQL();
 		$resultado = $funcoesSQL->SQL($sql, $dados);
 	        
         //return Agrupamento::fromArray($resultado);
