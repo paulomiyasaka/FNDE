@@ -32,8 +32,18 @@ class RegistrarPalete
 
     public function consultar(){
 
-        $sql = "SELECT COUNT(*) FROM tb_paletes WHERE numero_palete = :numero_palete";
+        $sql = "SELECT COUNT(*) AS qtd_palete FROM tb_paletes WHERE numero_palete = :numero_palete";
         $dados = array(":numero_palete" => $this->numero_palete);
+        $funcoesSQL = new FuncoesSQL();  
+        $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
+        return $resultado;
+
+    }
+
+    public function remover(){
+
+        $sql = "DELETE FROM tb_paletes_agrupados WHERE numero_palete = :numero_palete AND id_agrupamento = :id_agrupamento";
+        $dados = array(":id_agrupamento" => $this->id_agrupamento, ":numero_palete" => $this->numero_palete);
         $funcoesSQL = new FuncoesSQL();  
         $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
         return $resultado;

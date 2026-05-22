@@ -4,6 +4,7 @@ import { RegistrarAgrupamento } from './registrarAgrupamento.js';
 import { CancelarAgrupamento } from './cancelarAgrupamento.js';
 import { FecharAgrupamento } from './fecharAgrupamento.js';
 import { RegistrarPalete } from './registrarPalete.js';
+import { RemoverPalete } from './removerPalete.js';
 import { getSession } from './getSession.js';
 
 
@@ -175,22 +176,37 @@ async function inserirPalete() {
 
     codigoPalete.value = "";
     //atualizarTela();
-    console.log(registrar.resultado);
+    //console.log(registrar.resultado);
     if(registrar.resultado){
         mostrarToast("Palete inserido", "sucesso");
-        atualizarTela();
+        //atualizarTela();
     }else{
         mostrarToast("Erro ao registrar o palete", "erro");
     }
+    atualizarTela();
     
 }
 
-function removerPalete(numero) {
+async function removerPalete(numero) {
     const p = paletes.find(p => p.numero === numero);
     paletes = paletes.filter(p => p.numero !== numero);
     pesoTotal -= p.peso;
+    
+    const registrarPalete = new removerPalete(id, numero);
+    registrarPalete.setDados( id, numero);
+    const remover = await removerPalete.remover();
+    
+    //atualizarTela();
+    //console.log(registrar.resultado);
+    if(remover.resultado){
+        mostrarToast("Palete removido", "sucesso");
+        //atualizarTela();
+    }else{
+        mostrarToast("Erro ao remover o palete", "erro");
+    }
     atualizarTela();
-    mostrarToast("Palete removido", "sucesso");
+    
+
 }
 
 function atualizarTela() {
@@ -222,7 +238,7 @@ btnFechar.onclick = () => {
          <strong>Peso Total:</strong> ${pesoTotal} kg`,
         async () => {
             const fecharAgrupamento = new FecharAgrupamento();
-            fecharAgrupamento.setDados(id, 'CANCELADO');            
+            fecharAgrupamento.setDados(id, 'FECHADO');            
             const fechar = await fecharAgrupamento.fechar();
             if(fechar){
                 mostrarToast("Agrupamento fechado", "sucesso");

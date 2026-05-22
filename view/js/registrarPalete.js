@@ -54,10 +54,10 @@ export class RegistrarPalete {
             //console.log("Dados: "+data.centralizadora);
             if (data.resultado) {
                 //return data.resultado; 
-                return data.agrupamento; 
+                return data; 
             } else {
                 console.error("Erro no PHP:", data.mensagem);
-                return null;
+                return data;
             }    
 
         }catch(error){

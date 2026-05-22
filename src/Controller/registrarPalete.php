@@ -23,8 +23,8 @@ $se = $_POST['se'] ?? '';
 
 $registrar = new RegistrarPalete($idAgrupamento, $numeroPalete);
 $existePalete = $registrar->consultar();
-
-if(!$existePalete){
+//var_dump($existePalete[0]->qtd_palete);
+if(!$existePalete[0]->qtd_palete){
 
     $registrado = $registrar->registrar($numeroPalete, $pesoLiquido, $pesoMinimoEstimado, $pesoMaximoEstimado, $encomendaInicial, $encomendaFinal, $codigoSKU, $quantidadeEncomendas, $faseUnitizacao, $siglaCentralizadora, $se);
     if($registrado){
