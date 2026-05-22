@@ -2,16 +2,6 @@ export class RemoverPalete {
     constructor() {
         this.idAgrupamento = '';
         this.numeroPalete = '';
-        this.pesoLiquido = '';
-        this.pesoMinimoEstimado = '';
-        this.pesoMaximoEstimado = '';
-        this.EncomendaInicial = '';
-        this.EncomendaFinal = '';
-        this.codigoSKU = '';
-        this.quantidadeEncomendas = '';
-        this.faseUnitizacao = '';
-        this.siglaCentralizadora = '';
-        this.se = '';
     }
 
     setDados(idAgrupamento, numeroPalete) {

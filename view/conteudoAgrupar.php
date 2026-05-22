@@ -26,6 +26,7 @@
                     <button id="btnAbrir" class="btn btn-primary fs-5">Abrir</button>
                     <button id="btnCancelar" class="btn btn-danger fs-5 d-none">Cancelar</button>
                     <button id="btnFechar" class="btn btn-success fs-5 d-none">Fechar</button>
+                    
                 </div>
 
             </div>
@@ -69,7 +70,7 @@
                 </thead>
                 <tbody id="tabelaPaletes"></tbody>
             </table>
-
+    
         </div>
     </div>
 

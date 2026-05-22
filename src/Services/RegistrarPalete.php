@@ -43,9 +43,9 @@ class RegistrarPalete
     public function remover(){
 
         $sql = "DELETE FROM tb_paletes_agrupados WHERE numero_palete = :numero_palete AND id_agrupamento = :id_agrupamento";
-        $dados = array(":id_agrupamento" => $this->id_agrupamento, ":numero_palete" => $this->numero_palete);
+        $dados = array(":id_agrupamento" => $this->idAgrupamento, ":numero_palete" => $this->numero_palete);
         $funcoesSQL = new FuncoesSQL();  
-        $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);
+        $resultado = $funcoesSQL->SQL($sql, $dados);
         return $resultado;
 
     }
@@ -54,6 +54,22 @@ class RegistrarPalete
 
         $sql = "INSERT INTO tb_paletes_agrupados (id_agrupamento, numero_palete) VALUES (:id_agrupamento, :numero_palete) ";
         $dados = array(":id_agrupamento" => $this->idAgrupamento, ":numero_palete" => $this->numero_palete);
+        $funcoesSQL = new FuncoesSQL();  
+        $resultado = $funcoesSQL->SQL($sql, $dados);
+        if($resultado){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+
+
+    }
+
+    public function desagrupar(){
+
+        //$sql = "INSERT INTO tb_paletes_agrupados (id_agrupamento, numero_palete) VALUES (:id_agrupamento, :numero_palete) ";
+        $sql = "DELETE FROM tb_paletes_agrupados WHERE id_agrupamento = :id_agrupamento";
+        $dados = array(":id_agrupamento" => $this->idAgrupamento);
         $funcoesSQL = new FuncoesSQL();  
         $resultado = $funcoesSQL->SQL($sql, $dados);
         if($resultado){

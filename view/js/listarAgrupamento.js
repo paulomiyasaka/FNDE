@@ -52,7 +52,7 @@ async function carregarListaAgrupamentos() {
             <td>${item.matricula}</td>
             <td>${item.siglaSe}</td>
             <td>${item.siglaCentralizadora}</td>
-            <td><span class="badge ${badgeColor}">${item.status}</span></td>
+            <td><span class="badge ${badgeColor}"><a href="gerar_rotulo_agrupamento.php?id=${item.idAgrupamento}" target="_blank">${item.status}</a></span></td>
         `;
         tbody.appendChild(linha);
     });

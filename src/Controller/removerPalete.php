@@ -13,7 +13,7 @@ $numeroPalete = $_POST['numeroPalete'] ?? '';
 
 $remover = new RegistrarPalete($idAgrupamento, $numeroPalete);
 
-if($registrar->remover()){
+if($remover->remover()){
     $retorno['resultado'] = TRUE;
     $retorno['remover'] = TRUE;
 }

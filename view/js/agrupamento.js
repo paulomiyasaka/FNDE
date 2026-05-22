@@ -192,8 +192,8 @@ async function removerPalete(numero) {
     paletes = paletes.filter(p => p.numero !== numero);
     pesoTotal -= p.peso;
     
-    const registrarPalete = new removerPalete(id, numero);
-    registrarPalete.setDados( id, numero);
+    const removerPalete = new RemoverPalete();
+    removerPalete.setDados( id, numero);
     const remover = await removerPalete.remover();
     
     //atualizarTela();

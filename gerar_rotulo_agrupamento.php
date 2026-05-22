@@ -1,26 +1,51 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/vendor/autoload.php';
 
-use FNDE\Utils\GerarRotuloAgrupamento;
+use FNDE\Services\GerarRotuloAgrupamento2;
+use FNDE\Services\GetAgrupamento;
+$id_agrupamento = 0;
 
-// Objeto anônimo para simular o seu objeto Palete
-$paletes = [];
-for ($i = 1; $i <= 20; $i++) {
-    $palete = new stdClass();
-    $palete->id_etiqueta = "PE" . str_pad($i, 9, "0", STR_PAD_LEFT);
-    $palete->peso = number_format(rand(10, 50) + (rand(0, 99)/100), 2, ',', '');
-    $palete->qr_97_chars = str_repeat("A", 97); // Simulação dos 97 caracteres
-    $paletes[] = $palete;
+if(isset($_GET['id']) AND $_GET['id'] > 0 AND $_GET['id'] != ""){
+    $id_agrupamento = $_GET['id'];
+}else{
+    echo "Verificar informações.";
+    exit;
 }
 
+$paletesAgrupados = new GetAgrupamento();
+$paletesAgrupados->setAgrupamento($id_agrupamento);
+$paletes = $paletesAgrupados->retornarPaletes();
+
+//var_dump($paletes);
+
+
+/*
+for ($i = 1; $i <= 15; $i++) {
+    $palete = new \stdClass();
+    // ID do Palete curto para caber perfeitamente no topo interno da moldura
+    $palete->id_etiqueta = "PALETE " . str_pad($i, 2, "0", STR_PAD_LEFT);
+    $palete->peso = number_format(rand(15, 38) + (rand(0, 99)/100), 2, ',', '') . " kg";
+    
+    // Dados de 97 caracteres industriais para o QR Code
+    $palete->qr_97_chars = "FNDE_REG_N_ " . str_pad($i, 3, "0", STR_PAD_LEFT) . "_" . str_repeat("Q", 79);
+    
+    $paletes[] = $palete;
+}
+*/
+
+
 $dadosGerais = [
-    'destino' => 'FNDE_BENFICA_AGRUPAR',
-    'se' => 'RJ',
-    'sigla' => 'BFC',
-    'qtd_total' => '20',
-    'peso_total' => '663,86',
-    'qr_master' => '123456789010001BFCRJ' // Exemplo de 21 caracteres
+    'destino'     => 'FNDE_BENFICA_AGRUPAR',
+    'se'          => 'RJ',
+    'sigla'       => 'BFC',
+    'qtd_total'   => '15',
+    'peso_total'  => '394,12',
+    'qr_master'   => '00000394120015BFCRJXX' // 21 caracteres
 ];
 
-$relatorio = new GerarRotuloAgrupamento();
-$relatorio->renderizar($dadosGerais, $paletes);
+$gerador = new GerarRotuloAgrupamento2();
+$gerador->renderizar($dadosGerais, $paletes);

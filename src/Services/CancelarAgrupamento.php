@@ -27,9 +27,25 @@ class CancelarAgrupamento
 		$resultado = $funcoesSQL->SQL($sql, $dados);
 	        
         //return Agrupamento::fromArray($resultado);
+		//return $resultado;
+		if($resultado){
+			return $this->excluirRegistros();			
+		}else{
+			return FALSE;
+		}
+
+
+	}
+
+	protected function excluirRegistros(){
+		$sql = "DELETE FROM tb_paletes_agrupados WHERE id_agrupamento = :id";
+		$dados = array(":id" => $this->id);
+    	$funcoesSQL = new FuncoesSQL();
+		$resultado = $funcoesSQL->SQL($sql, $dados);
+	        
+        //return Agrupamento::fromArray($resultado);
 		return $resultado;
-
-
+		
 	}
 
 
