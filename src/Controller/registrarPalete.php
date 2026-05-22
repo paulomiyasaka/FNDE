@@ -8,6 +8,7 @@ use FNDE\Services\RegistrarPalete;
 
 $retorno = ['resultado' => false, 'agrupamento' => null];
 
+$idAgrupamento = $_POST['idAgrupamento'] ?? '';
 $numeroPalete = $_POST['numeroPalete'] ?? '';
 $pesoLiquido = $_POST['pesoLiquido'] ?? '';
 $pesoMinimoEstimado = $_POST['pesoMinimoEstimado'] ?? '';
@@ -20,14 +21,27 @@ $faseUnitizacao = $_POST['faseUnitizacao'] ?? '';
 $siglaCentralizadora = $_POST['siglaCentralizadora'] ?? '';
 $se = $_POST['se'] ?? '';
 
-$registrar = new RegistrarPalete($numeroPalete, $pesoLiquido, $pesoMinimoEstimado, $pesoMaximoEstimado, $encomendaInicial, $encomendaFinal, $codigoSKU, $quantidadeEncomendas, $faseUnitizacao, $siglaCentralizadora, $se);
-$registrado = $registrar->registrar();
-if($registrado){
-    $retorno['resultado'] = TRUE;
-    $retorno['agrupamento'] = $registrado;
+$registrar = new RegistrarPalete($idAgrupamento, $numeroPalete);
+$existePalete = $registrar->consultar();
+
+if(!$existePalete){
+
+    $registrado = $registrar->registrar($numeroPalete, $pesoLiquido, $pesoMinimoEstimado, $pesoMaximoEstimado, $encomendaInicial, $encomendaFinal, $codigoSKU, $quantidadeEncomendas, $faseUnitizacao, $siglaCentralizadora, $se);
+    if($registrado){
+        //$retorno['resultado'] = TRUE;
+        $retorno['palete'] = $registrado;
+    }
+
 }
-//var_dump($usuario);
-//exit();
+
+$agrupar = $registrar->agrupar();
+if($agrupar){
+    $retorno['resultado'] = TRUE;
+    $retorno['agrupamento'] = TRUE;
+}
+
+
+
 echo json_encode($retorno);
 
 ?>

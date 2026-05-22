@@ -23,7 +23,7 @@ include 'menuTop.php';
 include 'view/conteudoAgrupar2.php';
 include 'view/modalResposta.php';
 //include 'scripts.html';
-include 'footer.php';
+//include 'footer.php';
 ?>
 
 <script type="module" src="view/js/agrupamento.js"></script>

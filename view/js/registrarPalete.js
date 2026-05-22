@@ -1,5 +1,6 @@
 export class RegistrarPalete {
     constructor() {
+        this.idAgrupamento = '';
         this.numeroPalete = '';
         this.pesoLiquido = '';
         this.pesoMinimoEstimado = '';
@@ -13,7 +14,8 @@ export class RegistrarPalete {
         this.se = '';
     }
 
-    setDados(numeroPalete, pesoLiquido, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, se) {
+    setDados(idAgrupamento, numeroPalete, pesoLiquido, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, se) {
+        this.idAgrupamento = idAgrupamento;
         this.numeroPalete = numeroPalete;
         this.pesoLiquido = pesoLiquido;
         this.pesoMinimoEstimado = pesoMinimoEstimado;
@@ -29,6 +31,7 @@ export class RegistrarPalete {
 
     async registrar() {
         const formData = new FormData();
+        formData.append('idAgrupamento', this.idAgrupamento);
         formData.append('numeroPalete', this.numeroPalete);
         formData.append('pesoLiquido', this.pesoLiquido);
         formData.append('pesoMinimoEstimado', this.pesoMinimoEstimado);

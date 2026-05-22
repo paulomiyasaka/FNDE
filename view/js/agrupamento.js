@@ -131,14 +131,14 @@ async function inserirPalete() {
     }
 
     const numero = codigo.substring(0, 11).toUpperCase();
-    const peso = parseFloat(codigo.substring(11, 22)).toFixed(3);
-    const pesoMinimoEstimado = parseFloat(codigo.substring(22, 33)).toFixed(3);
-    const pesoMaximoEstimado = parseFloat(codigo.substring(33, 44)).toFixed(3);
+    const peso = parseFloat(codigo.substring(11, 22)); 
+    const pesoMinimoEstimado = parseFloat(codigo.substring(22, 33));
+    const pesoMaximoEstimado = parseFloat(codigo.substring(33, 44));
     const encomendaInicial = codigo.substring(44, 57).toUpperCase();
     const encomendaFinal = codigo.substring(57, 70).toUpperCase();
     const codigoSKU = codigo.substring(70, 85).toUpperCase();
-    const quantidadeEncomendas = parseFloat(codigo.substring(85, 89)).toFixed(3);
-    const faseUnitizacao = parseFloat(codigo.substring(89, 91)).toFixed(3);
+    const quantidadeEncomendas = parseFloat(codigo.substring(85, 89));
+    const faseUnitizacao = parseFloat(codigo.substring(89, 91));
     const siglaCentralizadora = codigo.substring(91, 94).toUpperCase();
     const siglaSe = codigo.substring(94, 97).toUpperCase();
     
@@ -166,17 +166,19 @@ async function inserirPalete() {
         return;
     }
 
-    paletes.push({ numero, peso, siglaCentralizadora, siglaSe });
+    paletes.push({ id, numero, peso, siglaCentralizadora, siglaSe });
     pesoTotal += peso;
 
     const registrarPalete = new RegistrarPalete();
-    registrarPalete.setDados(numero, peso, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, siglaSe);
+    registrarPalete.setDados( id, numero, peso, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, siglaSe);
     const registrar = await registrarPalete.registrar();
 
     codigoPalete.value = "";
-    atualizarTela();
+    //atualizarTela();
+    console.log(registrar.resultado);
     if(registrar.resultado){
         mostrarToast("Palete inserido", "sucesso");
+        atualizarTela();
     }else{
         mostrarToast("Erro ao registrar o palete", "erro");
     }
@@ -217,7 +219,7 @@ btnFechar.onclick = () => {
         "Fechar Agrupamento",
         `Confirma o fechamento do agrupamento?<br><br>
          <strong>Paletes:</strong> ${paletes.length}<br>
-         <strong>Peso Total:</strong> ${pesoTotal.toFixed(3)} kg`,
+         <strong>Peso Total:</strong> ${pesoTotal} kg`,
         async () => {
             const fecharAgrupamento = new FecharAgrupamento();
             fecharAgrupamento.setDados(id, 'CANCELADO');            
