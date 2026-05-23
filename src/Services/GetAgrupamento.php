@@ -3,6 +3,7 @@
 namespace FNDE\Services;
 
 use FNDE\Models\PaletesAgrupados;
+use FNDE\Models\DadosGeraisAgrupamento;
 use FNDE\Database\FuncoesSQL;
 
 class GetAgrupamento
@@ -24,9 +25,34 @@ class GetAgrupamento
         $id_agrupamento = $this->getAgrupamento();
 
         $funcoesSQL = new funcoesSQL();
-        $sql = "SELECT id_agrupamento, numero_palete FROM tb_paletes_agrupados WHERE id_agrupamento = :id_agrupamento";
+        //$sql = "SELECT id_agrupamento, numero_palete FROM tb_paletes_agrupados WHERE id_agrupamento = :id_agrupamento";
+        $sql = "SELECT 
+    pa.id_agrupamento,
+    p.numero_palete,
+    p.peso_previsto,
+    CONCAT(
+        RPAD(COALESCE(p.numero_palete, ''), 11, ' '),
+        RPAD(COALESCE(CAST(p.peso_previsto AS CHAR), ''), 10, ' '),
+        RPAD(COALESCE(CAST(p.peso_minimo AS CHAR), ''), 10, ' '),
+        RPAD(COALESCE(CAST(p.peso_maximo AS CHAR), ''), 10, ' '),
+        RPAD(COALESCE(p.encomenda_inicial, ''), 13, ' '),
+        RPAD(COALESCE(p.encomenda_final, ''), 13, ' '),
+        RPAD(COALESCE(p.sku, ''), 15, ' '),
+        LPAD(COALESCE(CAST(p.quantidade_encomendas AS CHAR), ''), 4, '0'),
+        LPAD(COALESCE(CAST(p.fase_unitizacao AS CHAR), ''), 2, '0'),
+        RPAD(COALESCE(p.sigla_centralizadora, ''), 3, ' '),
+        RPAD(COALESCE(p.sigla_se, ''), 3, ' ')
+    ) AS qr_97_chars
+FROM tb_paletes p
+INNER JOIN tb_centralizadora c       ON p.sigla_centralizadora = c.sigla_centralizadora
+INNER JOIN tb_se s                   ON p.sigla_se = s.sigla_se
+INNER JOIN tb_paletes_agrupados pa   ON p.numero_palete = pa.numero_palete
+-- Novo JOIN para poder validar o status do agrupamento
+INNER JOIN tb_agrupamento a          ON pa.id_agrupamento = a.id_agrupamento
+WHERE pa.id_agrupamento = :id_agrupamento
+  AND a.status = :status;";
 
-        $dados = array(':id_agrupamento' => $id_agrupamento);
+        $dados = array(':id_agrupamento' => $id_agrupamento, ':status' => 'FECHADO');
         $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);      
 
         $listaDTO = array_map(function($itemIndividual) {
@@ -39,20 +65,46 @@ class GetAgrupamento
     }
 
 
-    public function dadosAgrupamento()
+    public function retornarDadosGerais():array
     {
-        $agrupamento = $this->getAgrupamento();
-    /*
+        $id_agrupamento = $this->getAgrupamento();
+    
         $funcoesSQL = new funcoesSQL();
-        $sql = "SELECT id_agrupamento, numero_palete FROM tb_paletes_agrupados WHERE id_agrupamento = :id_agrupamento";
-
-        $dados = array(':id_agrupamento' => $id_agrupamento);
-        $resultado = $funcoesSQL->fetchAllSQL($sql, $dados);      
+        $sql = "SELECT 
+    a.id_agrupamento,
+    a.status AS status_agrupamento,
+    a.data_registro AS data_criacao_agrupamento,
+    c.sigla_centralizadora,
+    c.nome_centralizadora,
+    s.sigla_se,
+    s.nome AS nome_se,
+    a.matricula,
+    COUNT(pa.numero_palete) AS total_paletes,
+    SUM(COALESCE(p.peso_previsto, 0)) AS peso_total_agrupamento,
+    CONCAT(
+        LPAD(FORMAT(SUM(COALESCE(p.peso_previsto, 0)), 3, 'en_US'), 11, '0'),
+        LPAD(CAST(COUNT(pa.numero_palete) AS CHAR), 4, '0'),
+        RPAD(COALESCE(c.sigla_centralizadora, ''), 3, ' '),
+        RPAD(COALESCE(s.sigla_se, ''), 3, ' ')
+    ) AS qr_master -- <--- CONFIRME ESTE NOME
+FROM tb_agrupamento a
+INNER JOIN tb_centralizadora c       ON a.sigla_centralizadora = c.sigla_centralizadora
+INNER JOIN tb_se s                   ON a.sigla_se = s.sigla_se
+INNER JOIN tb_paletes_agrupados pa   ON a.id_agrupamento = pa.id_agrupamento
+INNER JOIN tb_paletes p              ON pa.numero_palete = p.numero_palete
+WHERE a.id_agrupamento = :id_agrupamento
+  AND a.status = :status
+GROUP BY 
+    a.id_agrupamento, a.status, a.data_registro, 
+    c.sigla_centralizadora, c.nome_centralizadora, 
+    s.sigla_se, s.nome, a.matricula;";
+        $dados = array(':id_agrupamento' => $id_agrupamento, ':status' => "FECHADO");
+        $resultado = $funcoesSQL->fetchAllSQL($sql, $dados); 
 
         $listaDTO = array_map(function($itemIndividual) {
-            return PaletesAgrupados::fromArray($itemIndividual);
+            return DadosGeraisAgrupamento::fromArray($itemIndividual);
         }, $resultado);
-    */
+    
         return $listaDTO;
 
     }
