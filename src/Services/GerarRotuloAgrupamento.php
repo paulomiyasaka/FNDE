@@ -157,11 +157,11 @@ class GerarRotuloAgrupamento {
                 background-color: #FFF;
             }
             
-            .palete-id { font-family: 'Arial'; font-size: 14pt; font-weight: bold; margin-bottom: 1mm; width: 100%; }
+            .palete-id { font-family: 'Arial'; font-size: 14pt; font-weight: bold; margin-bottom: 1mm; width: 100%;}
             
             /* Força os DataMatrix dos paletes a terem 52mm de largura por 50mm de altura */
-            .container-qr { width: 52mm; height: 50mm; margin: 0 auto; overflow: hidden; }
-            .qr-palete { width: 30mm; height: 30mm; display: block; margin: 0 auto; }
+            .container-qr { width: 52mm; height: 50mm; margin: 0 auto; overflow: hidden; padding: 5mm}
+            .qr-palete { width: 30mm; height: 30mm; display: block; margin: 0 auto;}
             
             .palete-peso { font-family: 'Arial'; font-size: 10pt; width: 100%; line-height: 1.2; }
         </style>";

@@ -53,7 +53,6 @@
                         <button id="btnAbrir" class="btn btn-primary fs-5">Abrir</button>
                         <button id="btnCancelar" class="btn btn-danger fs-5 d-none">Cancelar</button>
                         <button id="btnFechar" class="btn btn-success fs-5 d-none">Fechar</button>
-                        <a class="btn" target="_blank" href="gerar_rotulo_agrupamento.php" >Imprimir Rótulo</a>
                     </div>
 
                 </div>

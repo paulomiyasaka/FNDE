@@ -156,7 +156,7 @@ async function inserirPalete() {
 
     if ((pesoTotal + peso) > pesoMaximo) {
         limiteAtingido = true;
-        codigoPalete.disabled = true;
+        //codigoPalete.disabled = true;
 
         abrirModal(
             "Limite de Peso Atingido",

@@ -1,7 +1,7 @@
 import { RenderizarToast } from './RenderizarToast.js';
 
-const TEMPO_LIMITE = 10 * 60 * 1000; 
-const AVISO_ANTECIPADO = 2 * 60 * 1000;
+const TEMPO_LIMITE = 30 * 60 * 1000; 
+const AVISO_ANTECIPADO = 3 * 60 * 1000;
 
 let timeoutSessao;
 let avisoSessao;

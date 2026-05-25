@@ -38,10 +38,12 @@ async function carregarListaAgrupamentos() {
         const linha = document.createElement('tr');
         
         // Define uma cor bonitinha com Bootstrap dependendo do status
+        let linkBtn = item.status;
         let badgeColor = "";
         if(item.status === 'ABERTO'){
             badgeColor = 'bg-success';
         }else if(item.status === 'FECHADO'){
+            linkBtn = `<a href="gerar_rotulo_agrupamento.php?id=${item.idAgrupamento}" target="_blank" class="text-light">${item.status}</a>`;
             badgeColor = 'bg-primary';
         }else if(item.status === 'CANCELADO'){
             badgeColor = 'bg-warning text-dark';
@@ -52,7 +54,7 @@ async function carregarListaAgrupamentos() {
             <td>${item.matricula}</td>
             <td>${item.siglaSe}</td>
             <td>${item.siglaCentralizadora}</td>
-            <td><span class="badge ${badgeColor}"><a href="gerar_rotulo_agrupamento.php?id=${item.idAgrupamento}" target="_blank">${item.status}</a></span></td>
+            <td><span class="badge ${badgeColor}">${linkBtn}</span></td>
         `;
         tbody.appendChild(linha);
     });

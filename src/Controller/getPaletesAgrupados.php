@@ -8,17 +8,20 @@ use FNDE\Services\GetAgrupamento;
 
 $id_agrupamento = $_POST['id'] ?? '';
 
-$retorno = ['resultado' => false, 'agrupamento' => null];
+$retorno = ['resultado' => false, 'dadosGerais' => null, 'agrupamento' => null];
     
-$paletesAgrupados = new GetAgrupamento();
-$paletesAgrupados->setAgrupamento($id_agrupamento);
-$paletes = $paletesAgrupados->retornarPaletes();
-$dadosGerais = $paletesAgrupados->retornarDadosGerais();
+$GetAgrupamento = new GetAgrupamento();
+$GetAgrupamento->setAgrupamento($id_agrupamento);
+$agrupamento = $GetAgrupamento->retornarPaletes();
+$dadosGerais = $GetAgrupamento->retornarDadosGerais();
+
+//var_dump($dadosGerais);
 
 
 if ($agrupamento) {
     $retorno = [
         'resultado' => true,
+        'dadosGerais' => $dadosGerais,
         'agrupamento' => $agrupamento
     ];
     
