@@ -1,6 +1,7 @@
 import { getPaletesAgrupados } from './getPaletesAgrupados.js';
 // ELEMENTOS
 const codigoPalete = document.getElementById("codigoPalete");
+let idAgrupamento = 0;
 const btnPesquisar = document.getElementById("btnPesquisar");
 const btnImprimir = document.getElementById("btnImprimir");
 
@@ -33,7 +34,7 @@ btnPesquisar.onclick = pesquisar;
 
 async function pesquisar() {
 
-    let codigo = codigoPalete.value.trim();
+    let codigo = codigoPalete.value;
     codigo = codigo.substring(0, 11).toUpperCase();
     
 
@@ -43,43 +44,31 @@ async function pesquisar() {
     }
     //alert(codigo);
     const paletesAgrupados = await getPaletesAgrupados(codigo); 
-    //console.log(paletesAgrupados);
-    if (paletesAgrupados) {
+    console.log(paletesAgrupados.resultado);
+    if (!paletesAgrupados.resultado) {
         areaResultado.classList.add("d-none");
         btnImprimir.disabled = true;
         mostrarModal(`O palete número <strong>${codigo}</strong> não foi agrupado.`);
         return;
     }
 
-    // DADOS SIMULADOS
-    /*
-    const dados = {
-        estado: "DF",
-        centralizadora: "Central A",
-        paletes: [
-            { numero: "PE000000001", peso: 120.500 },
-            { numero: "PE000000002", peso: 95.300 },
-            { numero: "PE000000003", peso: 110.250 }
-        ]
-    };
-
-    */
-   const dados = paletesAgrupados;
-
-    preencherResultado(dados);
+    preencherResultado(paletesAgrupados);
     mostrarToast("Agrupamento localizado com sucesso", "sucesso");
 }
 
 function preencherResultado(dados) {
 
+    idAgrupamento = dados.paletes.idAgrupamento;
     areaResultado.classList.remove("d-none");
-    console.log(dados);
-    console.log(dados.dadosGerais);
-    rEstado.textContent = dados.estado;
-    rCentral.textContent = dados.centralizadora;
-    rQtd.textContent = dados.paletes.length;
+    //console.log(dados);
+    console.log(dados.paletes);
+    rEstado.textContent = dados.paletes.idAgrupamento;
+    
+    rCentral.textContent = dados.numeroPalete;
+    //rQtd.textContent = dados.pesoPrevisto.length;
+    rQtd.textContent = dados.pesoPrevisto;
 
-    const pesoTotal = dados.paletes.reduce((s, p) => s + p.peso, 0);
+    const pesoTotal = dados.paletes.reduce((s, p) => s + p.pesoPrevisto, 0);
     rPeso.textContent = pesoTotal.toFixed(3);
 
     tabelaPaletes.innerHTML = "";
@@ -87,8 +76,8 @@ function preencherResultado(dados) {
         tabelaPaletes.innerHTML += `
             <tr>
                 <td>${i + 1}</td>
-                <td>${p.numero}</td>
-                <td>${p.peso.toFixed(3)}</td>
+                <td>${p.numeroPalete}</td>
+                <td>${p.pesoPrevisto.toFixed(3)}</td>
             </tr>
         `;
     });
@@ -112,4 +101,5 @@ function mostrarToast(msg, tipo) {
 // IMPRIMIR
 btnImprimir.onclick = () => {
     mostrarToast("Abrindo rótulo para impressão...", "sucesso");
+    window.open(`gerar_rotulo_agrupamento.php?id=${idAgrupamento}`, "_blank");
 };

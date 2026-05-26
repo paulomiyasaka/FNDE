@@ -4,12 +4,14 @@ namespace FNDE\Services;
 
 use FNDE\Models\PaletesAgrupados;
 use FNDE\Models\DadosGeraisAgrupamento;
+use FNDE\Models\IdAgrupamento;
 use FNDE\Database\FuncoesSQL;
 
 class GetAgrupamento
 {
 
     protected ?string $agrupamento = '';
+    protected ?string $palete = '';
 
     public function setAgrupamento($agrupamento){
         $this->agrupamento = $agrupamento;
@@ -17,6 +19,14 @@ class GetAgrupamento
 
     public function getAgrupamento(){
         return $this->agrupamento;
+    }
+
+    public function setPalete($palete){
+        $this->palete = $palete;
+    }
+
+    public function getPalete(){
+        return $this->palete;
     }
 
     public function retornarPaletes(): array
@@ -103,6 +113,33 @@ GROUP BY
 
         $listaDTO = array_map(function($itemIndividual) {
             return DadosGeraisAgrupamento::fromArray($itemIndividual);
+        }, $resultado);
+    
+        return $listaDTO;
+
+    }
+
+
+    public function buscarAgrupamento():array
+    {
+        $palete = $this->getPalete();
+    
+        $funcoesSQL = new funcoesSQL();
+        $sql = "SELECT 
+        pa.id_agrupamento,
+        pa.numero_palete,
+        a.status     
+        FROM tb_paletes_agrupados pa 
+        INNER JOIN tb_agrupamento a 
+        ON pa.id_agrupamento = a.id_agrupamento 
+        WHERE pa.numero_palete = :palete 
+        ORDER BY pa.id_agrupamento DESC 
+        LIMIT 1";
+        $dados = array(':palete' => $palete);
+        $resultado = $funcoesSQL->fetchAllSQL($sql, $dados); 
+
+        $listaDTO = array_map(function($itemIndividual) {
+            return IdAgrupamento::fromArray($itemIndividual);
         }, $resultado);
     
         return $listaDTO;

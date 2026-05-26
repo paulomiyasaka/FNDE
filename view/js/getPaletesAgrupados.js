@@ -1,6 +1,6 @@
-export async function getPaletesAgrupados(idAgrupamento) {
+    export async function getPaletesAgrupados(palete) {
     const formData = new FormData();
-    formData.append('id', idAgrupamento);
+    formData.append('palete', palete);
 	
     try{
         const url = 'src/Controller/GetPaletesAgrupados.php';

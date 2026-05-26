@@ -6,22 +6,26 @@ require '../../vendor/autoload.php';
 
 use FNDE\Services\GetAgrupamento;
 
-$id_agrupamento = $_POST['id'] ?? '';
+$palete = $_POST['palete'] ?? '';
 
 $retorno = ['resultado' => false, 'dadosGerais' => null, 'agrupamento' => null];
     
 $GetAgrupamento = new GetAgrupamento();
-$GetAgrupamento->setAgrupamento($id_agrupamento);
-$agrupamento = $GetAgrupamento->retornarPaletes();
-$dadosGerais = $GetAgrupamento->retornarDadosGerais();
+$GetAgrupamento->setPalete($palete);
+$agrupamento = $GetAgrupamento->buscarAgrupamento();
 
-//var_dump($dadosGerais);
+$idAgrupamento = $agrupamento[0]->idAgrupamento;
+$GetAgrupamento->setAgrupamento($idAgrupamento);
+$dadosPaletes = $GetAgrupamento->retornarPaletes();
+
+
+//var_dump($dadosPaletes);
 
 
 if ($agrupamento) {
     $retorno = [
         'resultado' => true,
-        'dadosGerais' => $dadosGerais,
+        'paletes' => $dadosPaletes,
         'agrupamento' => $agrupamento
     ];
     

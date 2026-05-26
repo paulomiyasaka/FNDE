@@ -5,6 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 require '../../vendor/autoload.php';
 
 use FNDE\Services\RegistrarPalete;
+use FNDE\Services\GetAgrupamento;
 
 $retorno = ['resultado' => false, 'agrupamento' => null];
 
@@ -20,6 +21,18 @@ $quantidadeEncomendas = $_POST['quantidadeEncomendas'] ?? '';
 $faseUnitizacao = $_POST['faseUnitizacao'] ?? '';
 $siglaCentralizadora = $_POST['siglaCentralizadora'] ?? '';
 $se = $_POST['se'] ?? '';
+
+
+$GetAgrupamento = new GetAgrupamento();
+$GetAgrupamento->setPalete($numeroPalete);
+$paleteAgrupado = $GetAgrupamento->buscarAgrupamento();
+
+if($paleteAgrupado){
+    echo json_encode($retorno);
+    exit;
+}
+
+
 
 $registrar = new RegistrarPalete($idAgrupamento, $numeroPalete);
 $existePalete = $registrar->consultar();

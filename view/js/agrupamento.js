@@ -165,10 +165,7 @@ async function inserirPalete() {
              Feche ou cancele o agrupamento.`
         );
         return;
-    }
-
-    paletes.push({ id, numero, peso, siglaCentralizadora, siglaSe });
-    pesoTotal += peso;
+    }   
 
     const registrarPalete = new RegistrarPalete();
     registrarPalete.setDados( id, numero, peso, pesoMinimoEstimado, pesoMaximoEstimado, encomendaInicial, encomendaFinal, codigoSKU, quantidadeEncomendas, faseUnitizacao, siglaCentralizadora, siglaSe);
@@ -180,6 +177,8 @@ async function inserirPalete() {
     if(registrar.resultado){
         mostrarToast("Palete inserido", "sucesso");
         //atualizarTela();
+        paletes.push({ id, numero, peso, siglaCentralizadora, siglaSe });
+        pesoTotal += peso;
     }else{
         mostrarToast("Erro ao registrar o palete", "erro");
     }
