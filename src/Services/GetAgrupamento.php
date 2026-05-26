@@ -42,9 +42,9 @@ class GetAgrupamento
     p.peso_previsto,
     CONCAT(
         RPAD(COALESCE(p.numero_palete, ''), 11, ' '),
-        RPAD(COALESCE(CAST(p.peso_previsto AS CHAR), ''), 10, ' '),
-        RPAD(COALESCE(CAST(p.peso_minimo AS CHAR), ''), 10, ' '),
-        RPAD(COALESCE(CAST(p.peso_maximo AS CHAR), ''), 10, ' '),
+        RPAD(COALESCE(CAST(p.peso_previsto AS CHAR), ''), 11, '0'),
+        RPAD(COALESCE(CAST(p.peso_minimo AS CHAR), ''), 11, '0'),
+        RPAD(COALESCE(CAST(p.peso_maximo AS CHAR), ''), 11, '0'),
         RPAD(COALESCE(p.encomenda_inicial, ''), 13, ' '),
         RPAD(COALESCE(p.encomenda_final, ''), 13, ' '),
         RPAD(COALESCE(p.sku, ''), 15, ' '),
