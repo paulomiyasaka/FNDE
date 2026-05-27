@@ -44,8 +44,8 @@ async function pesquisar() {
     }
     //alert(codigo);
     const paletesAgrupados = await getPaletesAgrupados(codigo); 
-    //console.log(paletesAgrupados.resultado);
-    if (!paletesAgrupados.resultado) {
+    console.log(paletesAgrupados.resultado);
+    if (paletesAgrupados.resultado == false) {
         areaResultado.classList.add("d-none");
         btnImprimir.disabled = true;
         mostrarModal(`O palete número <strong>${codigo}</strong> não foi agrupado.`);
@@ -58,20 +58,20 @@ async function pesquisar() {
 
 function preencherResultado(dados) {
 
-    idAgrupamento = dados.paletes.idAgrupamento;
+    idAgrupamento = dados.dadosGerais[0].idAgrupamento;
     areaResultado.classList.remove("d-none");
-    //console.log(dados);
+    console.log(idAgrupamento);
     //console.log(dados.paletes);
-    rEstado.textContent = dados.paletes.idAgrupamento;
+    rEstado.textContent = idAgrupamento;
     
-    rCentral.textContent = dados.numeroPalete;
-    rQtd.textContent = dados.paletes.length;
+    rCentral.textContent = dados.agrupamento.numeroPalete;
+    rQtd.textContent = dados.agrupamento.length;
 
-    const pesoTotal = dados.paletes.reduce((s, p) => s + p.pesoPrevisto, 0);
+    const pesoTotal = dados.agrupamento.reduce((s, p) => s + p.pesoPrevisto, 0);
     rPeso.textContent = pesoTotal.toFixed(3);
 
     tabelaPaletes.innerHTML = "";
-    dados.paletes.forEach((p, i) => {
+    dados.agrupamento.forEach((p, i) => {
         tabelaPaletes.innerHTML += `
             <tr>
                 <td>${i + 1}</td>

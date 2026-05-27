@@ -15,16 +15,17 @@ $GetAgrupamento->setPalete($palete);
 $agrupamento = $GetAgrupamento->buscarAgrupamento();
 
 $idAgrupamento = 0;
-
-if (!empty($agrupamento)) {
+//var_dump($agrupamento);
+//if (!empty($agrupamento)) {
+if ($agrupamento) {
     $idAgrupamento = $agrupamento[0]->idAgrupamento;
     $GetAgrupamento->setAgrupamento($idAgrupamento);
     $dadosPaletes = $GetAgrupamento->retornarPaletes();
 
     $retorno = [
         'resultado' => true,
-        'paletes' => $dadosPaletes,
-        'agrupamento' => $agrupamento
+        'agrupamento' => $dadosPaletes,
+        'dadosGerais' => $agrupamento
     ];
     
   

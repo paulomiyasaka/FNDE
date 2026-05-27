@@ -9,11 +9,11 @@
             body: formData
         });
         const data = await response.json();
-
-        if (data.resultado) {
+        console.log(data);
+        if (data) {
             return data; 
         } else {
-            console.error("Erro no PHP:", data.mensagem);
+            console.error("Erro no PHP:", data);
             return null;
         }    
 
