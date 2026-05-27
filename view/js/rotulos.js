@@ -44,7 +44,7 @@ async function pesquisar() {
     }
     //alert(codigo);
     const paletesAgrupados = await getPaletesAgrupados(codigo); 
-    console.log(paletesAgrupados.resultado);
+    //console.log(paletesAgrupados.resultado);
     if (!paletesAgrupados.resultado) {
         areaResultado.classList.add("d-none");
         btnImprimir.disabled = true;
@@ -61,12 +61,11 @@ function preencherResultado(dados) {
     idAgrupamento = dados.paletes.idAgrupamento;
     areaResultado.classList.remove("d-none");
     //console.log(dados);
-    console.log(dados.paletes);
+    //console.log(dados.paletes);
     rEstado.textContent = dados.paletes.idAgrupamento;
     
     rCentral.textContent = dados.numeroPalete;
-    //rQtd.textContent = dados.pesoPrevisto.length;
-    rQtd.textContent = dados.pesoPrevisto;
+    rQtd.textContent = dados.paletes.length;
 
     const pesoTotal = dados.paletes.reduce((s, p) => s + p.pesoPrevisto, 0);
     rPeso.textContent = pesoTotal.toFixed(3);

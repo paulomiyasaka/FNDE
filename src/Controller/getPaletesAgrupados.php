@@ -14,22 +14,24 @@ $GetAgrupamento = new GetAgrupamento();
 $GetAgrupamento->setPalete($palete);
 $agrupamento = $GetAgrupamento->buscarAgrupamento();
 
-$idAgrupamento = $agrupamento[0]->idAgrupamento;
-$GetAgrupamento->setAgrupamento($idAgrupamento);
-$dadosPaletes = $GetAgrupamento->retornarPaletes();
+$idAgrupamento = 0;
 
+if (!empty($agrupamento)) {
+    $idAgrupamento = $agrupamento[0]->idAgrupamento;
+    $GetAgrupamento->setAgrupamento($idAgrupamento);
+    $dadosPaletes = $GetAgrupamento->retornarPaletes();
 
-//var_dump($dadosPaletes);
-
-
-if ($agrupamento) {
     $retorno = [
         'resultado' => true,
         'paletes' => $dadosPaletes,
         'agrupamento' => $agrupamento
     ];
     
+  
+
 }
+
+//var_dump($dadosPaletes);
 
 echo json_encode($retorno);
 
