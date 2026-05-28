@@ -142,6 +142,14 @@ async function inserirPalete() {
     const faseUnitizacao = parseFloat(codigo.substring(89, 91));
     const siglaCentralizadora = codigo.substring(91, 94).toUpperCase();
     const siglaSe = codigo.substring(94, 97).toUpperCase();
+
+    if (siglaSe.trim() !== selectSuperintendencia.value) {
+        abrirModal(
+            "Palete Divergente",
+            `O palete ${numero} não é destinado a SE/${selectSuperintendencia.value}.<br>Verifique o palete informado.`
+        );
+        return;
+    }
     
  
     const existente = paletes.find(p => p.numero === numero);

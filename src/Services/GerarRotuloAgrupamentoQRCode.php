@@ -7,7 +7,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Writer\PngWriter;
 
-class GerarRotuloAgrupamento2 {
+class GerarRotuloAgrupamentoQRCode {
     private $mpdf;
 
     public function __construct() {
@@ -41,7 +41,7 @@ class GerarRotuloAgrupamento2 {
             $paginaAtual = $index + 1;
             
             // Gerar QR Code Master (Canto superior direito - 21 chars)
-            $qrMasterLink = $this->gerarQrCode($dadosGerais['qr_master'], 200);
+            $qrMasterLink = $this->gerarQrCode($dadosGerais->qrCompilacao, 200);
 
             $html = $this->getCSS();
             $html .= "
@@ -56,8 +56,8 @@ class GerarRotuloAgrupamento2 {
                         </td>
                     </tr>
                     <tr>
-                        <td colspan='4' class='saida-bold'>{$dadosGerais['destino']}</td>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais['se']}</td>
+                        <td colspan='4' class='saida-bold'>{$dadosGerais->nomeCentralizadora}</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaSe}</td>
                     </tr>
                     <tr>
                         <td class='label' style='width: 25%;'>Sigla Centralizadora:</td>
@@ -67,10 +67,10 @@ class GerarRotuloAgrupamento2 {
                         <td class='label' style='width: 15%;'>Página:</td>
                     </tr>
                     <tr>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais['sigla']}</td>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais['qtd_total']}</td>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais['peso_total']}</td>
-                        <td class='saida-bold' style='text-align: center;'>EDITORA XYZ</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaCentralizadora}</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->totalPaletes}</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->pesoTotalAgrupamento}</td>
+                        <td class='saida-bold' style='text-align: center;'>CLI CAJAMAR</td>
                         <td class='saida-bold' style='text-align: center;'><span class='saida'>{$paginaAtual} de {$totalPaginas}</span></td>
                     </tr>
                 </table>
@@ -87,16 +87,16 @@ class GerarRotuloAgrupamento2 {
                 }
                 
                 $palete = $paginaPaletes[$i];
-                $qrPaleteImg = $this->gerarQrCode($palete->qr_97_chars, 250);
+                $qrPaleteImg = $this->gerarQrCode($palete->qrMaster, 250);
                 
                 $html .= "
                 <td class='celula-palete'>
                     <div class='moldura-palete'>
-                        <div class='palete-id'>{$palete->id_etiqueta}</div>
+                        <div class='palete-id'>{$palete->numeroPalete}</div>
                         <div class='container-qr'>                            
                             <img src='{$qrPaleteImg}' class='qr-palete'>                            
                         </div>
-                        <div class='palete-peso'>Peso (kg): <span class='saida-bold'>{$palete->peso}</span></div>
+                        <div class='palete-peso'>Peso (kg): <span class='saida-bold'>{$palete->pesoPrevisto}</span></div>
                     </div>
                 </td>";
                 

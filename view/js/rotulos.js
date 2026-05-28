@@ -4,6 +4,8 @@ const codigoPalete = document.getElementById("codigoPalete");
 let idAgrupamento = 0;
 const btnPesquisar = document.getElementById("btnPesquisar");
 const btnImprimir = document.getElementById("btnImprimir");
+const btnImprimirQR = document.getElementById("btnImprimirQR");
+const btnImprimirQRUnificado = document.getElementById("btnImprimirQRUnificado");
 
 const areaResultado = document.getElementById("areaResultado");
 const rEstado = document.getElementById("rEstado");
@@ -48,6 +50,8 @@ async function pesquisar() {
     if (paletesAgrupados.resultado == false) {
         areaResultado.classList.add("d-none");
         btnImprimir.disabled = true;
+        btnImprimirQR.disabled = true;
+        btnImprimirQRUnificado.disabled = true;
         mostrarModal(`O palete número <strong>${codigo}</strong> não foi agrupado.`);
         return;
     }
@@ -82,6 +86,8 @@ function preencherResultado(dados) {
     });
 
     btnImprimir.disabled = false;
+    btnImprimirQR.disabled = false;
+    btnImprimirQRUnificado.disabled = false;
 }
 
 // PADRÕES
@@ -99,6 +105,16 @@ function mostrarToast(msg, tipo) {
 
 // IMPRIMIR
 btnImprimir.onclick = () => {
-    mostrarToast("Abrindo rótulo para impressão...", "sucesso");
-    window.open(`rotulo_qr_unicoo.php?id=${idAgrupamento}`, "_blank");
+    mostrarToast("Abrindo rótulo DataMatrix para impressão...", "sucesso");
+    window.open(`gerar_rotulo_agrupamento.php?id=${idAgrupamento}`, "_blank");
+};
+
+btnImprimirQR.onclick = () => {
+    mostrarToast("Abrindo rótulo QR Code para impressão...", "sucesso");
+    window.open(`gerar_rotulo_qr_code.php?id=${idAgrupamento}`, "_blank");
+};
+
+btnImprimirQRUnificado.onclick = () => {
+    mostrarToast("Abrindo rótulo QR Code Unificado para impressão...", "sucesso");
+    window.open(`rotulo_qr_unico.php?id=${idAgrupamento}`, "_blank");
 };

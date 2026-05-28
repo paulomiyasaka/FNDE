@@ -56,7 +56,13 @@
                 </table>
 
                 <button id="btnImprimir" class="btn btn-success fs-5 mt-3" disabled>
-                    Imprimir Rótulo
+                    Imprimir Rótulo DataMatrix
+                </button>
+                <button id="btnImprimirQR" class="btn btn-primary fs-5 mt-3" disabled>
+                    Imprimir Rótulo QR Code
+                </button>
+                <button id="btnImprimirQRUnificado" class="btn btn-warning fs-5 mt-3" disabled>
+                    Imprimir Rótulo QR Code Unificado
                 </button>
 
             </div>
