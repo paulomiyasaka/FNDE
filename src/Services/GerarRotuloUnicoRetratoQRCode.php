@@ -1,7 +1,7 @@
 <?php
 namespace FNDE\Services;
 
-use mpdf\mpdf;
+use Mpdf\Mpdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
@@ -59,7 +59,7 @@ class GerarRotuloUnicoRetratoQRCode {
             $paginaAtual = $index + 1;
             
             // 1. INICIALIZA A STRING COM OS DADOS GERAIS (21 caracteres)
-            $stringCompletaMaster = $dadosGerais['qr_master'];
+            $stringCompletaMaster = $dadosGerais->qr_master;
 
             // 2. LOOP DE CONCATENAÇÃO COM O DELIMITADOR "|" NA FRENTE DE CADA CÓDIGO DE 97 CARACTERES
             foreach ($paletesDaPagina as $palete) {

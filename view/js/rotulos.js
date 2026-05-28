@@ -100,5 +100,5 @@ function mostrarToast(msg, tipo) {
 // IMPRIMIR
 btnImprimir.onclick = () => {
     mostrarToast("Abrindo rótulo para impressão...", "sucesso");
-    window.open(`gerar_rotulo_agrupamento.php?id=${idAgrupamento}`, "_blank");
+    window.open(`rotulo_qr_unicoo.php?id=${idAgrupamento}`, "_blank");
 };

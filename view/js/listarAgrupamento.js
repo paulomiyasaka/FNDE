@@ -43,7 +43,7 @@ async function carregarListaAgrupamentos() {
         if(item.status === 'ABERTO'){
             badgeColor = 'bg-success';
         }else if(item.status === 'FECHADO'){
-            linkBtn = `<a href="gerar_rotulo_agrupamento.php?id=${item.idAgrupamento}" target="_blank" class="text-light">${item.status}</a>`;
+            linkBtn = `<a href="rotulo_qr_unico.php?id=${item.idAgrupamento}" target="_blank" class="text-light">${item.status}</a>`;
             badgeColor = 'bg-primary';
         }else if(item.status === 'CANCELADO'){
             badgeColor = 'bg-warning text-dark';
