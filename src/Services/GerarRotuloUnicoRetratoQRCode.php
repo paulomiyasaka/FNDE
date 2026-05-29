@@ -87,23 +87,22 @@ class GerarRotuloUnicoRetratoQRCode {
                         <td colspan='4' class='titulo-cabecalho'>PALETES ENGLOBADOS - FNDE</td>
                     </tr>
                     <tr>
-                        <td colspan='2' class='label'>Destino:</td>
-                        <td class='label'>Origem:</td>
-                        <td class='label' style='width: 15%;'>SE:</td>
+                        <td colspan='3' class='label'>Centralizadora de Destino:</td>
+                        <td class='label'>SE Destino:</td>                       
                     </tr>
                     <tr>
-                        <td colspan='2' class='saida-bold'>{$dadosGerais->nomeCentralizadora}</td>
-                        <td class='saida-bold'>CLI CAJAMAR</td>
+                        <td colspan='3' class='saida-bold'>{$dadosGerais->siglaCentralizadora} - {$dadosGerais->nomeCentralizadora}</td>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaSe}</td>
+                        
                     </tr>
                     <tr>
-                        <td class='label' style='width: 25%;'>Sigla Centralizadora:</td>
-                        <td class='label' style='width: 25%;'>Qtde de paletes:</td>
+                        <td class='label' style='width: 40%;'>Origem:</td>
+                        <td class='label' style='width: 20%;'>Qtde de paletes:</td>
                         <td class='label' style='width: 25%;'>Peso Total - kg</td>
-                        <td class='label' style='width: 25%;'>Página:</td>
+                        <td class='label' style='width: 20%;'>Página:</td>
                     </tr>
                     <tr>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaCentralizadora}</td>
+                        <td class='saida-bold' style='text-align: center;'>CLI CAJAMAR</td>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->totalPaletes}</td>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->pesoTotalAgrupamento} kg</td>
                         <td class='saida-bold' style='text-align: center;'>{$paginaAtual} de {$totalPaginas}</td>
@@ -111,14 +110,14 @@ class GerarRotuloUnicoRetratoQRCode {
                 </table>
             </div>
 
-            <div class='centro-container'>
-                <div class='instrucao-leitura'>Faça a leitura do QR Code para a postagem e expedição.</div>
+            <div class='centro-container'>                
                 <div class='wrapper-qr'>
                     <img src='{$linkQrCodeUnificado}' class='qr-unificado-img'>
                 </div>
             </div>
 
             <div class='footer-container'>
+            <div class='instrucao-leitura'>Relação de paletes englobados:</div>
                 <table style='width: 100%; border: none; border-collapse: collapse; table-layout: fixed;'>
                     <tr>
                         <td style='width: 4%; border: none;'></td>
@@ -216,6 +215,7 @@ class GerarRotuloUnicoRetratoQRCode {
                 font-size: 14pt; 
                 font-weight: bold; 
                 margin-bottom: 6mm; 
+                padding-bottom: 3mm;
                 text-align: center; 
                 width: 100%;
             }

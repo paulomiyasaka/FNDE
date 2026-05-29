@@ -72,7 +72,7 @@ function preencherResultado(dados) {
     rQtd.textContent = dados.agrupamento.length;
 
     const pesoTotal = dados.agrupamento.reduce((s, p) => s + p.pesoPrevisto, 0);
-    rPeso.textContent = pesoTotal.toFixed(3);
+    rPeso.textContent = pesoTotal.toFixed(3).replace('.', ',');
 
     tabelaPaletes.innerHTML = "";
     dados.agrupamento.forEach((p, i) => {
@@ -80,7 +80,7 @@ function preencherResultado(dados) {
             <tr>
                 <td>${i + 1}</td>
                 <td>${p.numeroPalete}</td>
-                <td>${p.pesoPrevisto.toFixed(3)}</td>
+                <td>${p.pesoPrevisto.toFixed(3).replace('.', ',')}</td>
             </tr>
         `;
     });

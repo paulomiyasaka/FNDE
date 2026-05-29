@@ -37,7 +37,6 @@ async function carregarListaAgrupamentos() {
     dados.forEach(item => {
         const linha = document.createElement('tr');
         
-        // Define uma cor bonitinha com Bootstrap dependendo do status
         let linkBtn = item.status;
         let badgeColor = "";
         if(item.status === 'ABERTO'){

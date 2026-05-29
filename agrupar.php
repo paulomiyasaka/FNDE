@@ -26,11 +26,12 @@ include 'view/modalResposta.php';
 //include 'footer.php';
 ?>
 
+<?php
+require_once __DIR__ . '/footer.php';
+require_once __DIR__ . '/scripts.html';
+?>
 <script type="module" src="view/js/agrupamento.js"></script>
 <script type="module" src="view/js/listarAgrupamento.js"></script>
+
 </body>
 </html>
-
-<?php
-include 'scripts.html';
-?>
