@@ -5,8 +5,7 @@
          <ul>
            <li>Agrupamento de paletes</li>
            <li>Emissão de rótulos</li>
-           <li>Agendamento (recebimento de carga)</li>
-           <li>Cadastrar Notas Fiscais de recebimento</li>
+           <li>Relatórios</li>
          </ul>        
       </div>
     </div>  

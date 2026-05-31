@@ -17,7 +17,17 @@ class ListarAgrupamento
 
 	public function listar():?array
 	{
-		$sql = "SELECT * FROM tb_agrupamento ORDER BY data_registro DESC";
+		$sql = "SELECT a.id_agrupamento,
+		a.matricula, 
+		a.sigla_se,
+		a.sigla_centralizadora,
+		a.status,
+		c.nome_centralizadora,
+		DATE_FORMAT(a.data_registro, '%d/%m/%Y - %H:%i') AS data_registro 
+		FROM tb_agrupamento as a
+		INNER JOIN tb_centralizadora as c
+		ON a.sigla_centralizadora = c.sigla_centralizadora 
+		ORDER BY data_registro DESC";
 		$dados = array();
     	$funcoesSQL = new FuncoesSQL();
 		$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);

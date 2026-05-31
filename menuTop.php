@@ -3,14 +3,14 @@
       <div class="container">
         <div class="row">
           <div class="col-3">
-            <img src="img/NCorreios_hori_cor_pos.png" alt="Correios" class="logo d-inline-block ">
+            <a href="./"><img src="img/NCorreios_hori_cor_pos.png" alt="Correios" class="logo d-inline-block "></a>
           </div>
         
           <div class="col-6">
             <div class="collapse navbar-collapse float justify-content-evenly" id="navbarNav">
               <ul class="navbar-nav">
                 <li class="nav-item">
-                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="agrupar.php">Agrupar</a>
+                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="agrupar.php">Englobar</a>
                 </li>
                 <li class="nav-item">
                   <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="rotulos.php">Rótulos</a>

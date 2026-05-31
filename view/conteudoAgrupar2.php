@@ -2,7 +2,7 @@
 
     <div id="areaListagem" class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Lista de Agrupamentos Existentes</h5>
+            <h5 class="mb-0">Lista de Englobamentos Existentes</h5>
             <button id="btnNovoLancamento" class="btn btn-success fs-5">Novo Lançamento</button>
         </div>
         <div class="card-body">
@@ -13,6 +13,7 @@
                         <th>Matrícula</th>
                         <th>SE</th>
                         <th>Centralizadora</th>
+                        <th>Data</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -36,18 +37,32 @@
                 <div class="row g-3">
 
                     <div class="col-md-4">
-                        <label class="form-label">SE:</label>
+                        <label class="form-label">SE Origem:</label>
+                        <select id="select_superintendencia_origem" class="form-select fs-5" name="superintendencia_origem" required>
+                            <option value="" selected disabled>Selecione</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Centralizadora Origem:</label>
+                        <select id="select_centralizadora_origem" name="centralizadora_origem" class="form-select fs-5" required>
+                            <option value="" selected disabled>Selecione</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">SE Destino:</label>
                         <select id="select_superintendencia" class="form-select fs-5" name="superintendencia" required>
                             <option value="" selected disabled>Selecione</option>
                         </select>
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label">Centralizadora:</label>
+                        <label class="form-label">Centralizadora Destino:</label>
                         <select id="select_centralizadora" name="centralizadora" class="form-select fs-5" required>
                             <option value="" selected disabled>Selecione</option>
                         </select>
-                    </div>
+                    </div>                    
 
                     <div class="col-md-4 d-flex align-items-end gap-2">
                         <button id="btnAbrir" class="btn btn-primary fs-5">Abrir</button>
@@ -64,7 +79,7 @@
 
                 <div class="row mb-3">
                     <div class="col-md-12 alert alert-secondary fs-5">
-                        ID Agrupamento: <strong id="id_agrupamento"></strong>
+                        ID Englobamento: <strong id="id_agrupamento"></strong>
                     </div>
                 </div>
 
@@ -77,8 +92,17 @@
                     </div>                
                 </div>
 
+                <div class="input-group col-3 mb-3">
+                    
+                    <label class="form-label">Travar Centralizadora:</label>
+                        <select id="select_travar_centralizadora" name="travar_centralizadora" class="form-select fs-5" required>
+                            <option value="SIM" selected>SIM</option>
+                            <option value="NAO">NÃO</option>
+                        </select>
+                </div>
+
                 <div class="input-group mb-3">
-                    <input id="codigoPalete" class="form-control fs-5" placeholder="Código do palete">
+                    <input id="codigoPalete" class="form-control fs-5" placeholder="Código do palete">                    
                     <button id="btnInserir" class="btn btn-primary fs-5">Inserir</button>
                 </div>
 
@@ -90,7 +114,6 @@
                             <th>Peso (kg)</th>
                             <th>Sigla Centralizadora</th>
                             <th>Superintendência</th>
-                            <th class="fs-6 overflow-auto">Código Palete</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaPaletes"></tbody>
@@ -127,6 +150,6 @@
 <!-- OVERLAY DE FECHAMENTO -->
 <div id="overlayFechamento" class="overlay-fechamento d-none">
     <div class="overlay-conteudo">
-        Agrupamento pronto para fechamento
+        Englogamento pronto para fechar.
     </div>
 </div>

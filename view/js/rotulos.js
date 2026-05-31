@@ -9,6 +9,7 @@ const btnImprimirQRUnificado = document.getElementById("btnImprimirQRUnificado")
 
 const areaResultado = document.getElementById("areaResultado");
 const rEstado = document.getElementById("rEstado");
+const rIdAgrupamento = document.getElementById("rIdAgrupamento");
 const rCentral = document.getElementById("rCentral");
 const rQtd = document.getElementById("rQtd");
 const rPeso = document.getElementById("rPeso");
@@ -64,11 +65,12 @@ function preencherResultado(dados) {
 
     idAgrupamento = dados.dadosGerais[0].idAgrupamento;
     areaResultado.classList.remove("d-none");
-    console.log(idAgrupamento);
+    console.log(dados.dadosGerais[0]);
     //console.log(dados.paletes);
-    rEstado.textContent = idAgrupamento;
+    rEstado.textContent = dados.dadosGerais[0].siglaSe;
+    rIdAgrupamento.textContent = idAgrupamento;
     
-    rCentral.textContent = dados.agrupamento.numeroPalete;
+    rCentral.textContent = `${dados.dadosGerais[0].siglaCentralizadora} - ${dados.dadosGerais[0].nomeCentralizadora}`;
     rQtd.textContent = dados.agrupamento.length;
 
     const pesoTotal = dados.agrupamento.reduce((s, p) => s + p.pesoPrevisto, 0);

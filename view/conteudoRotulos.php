@@ -23,12 +23,15 @@
             <div id="areaResultado" class="d-none">
 
                 <div class="alert alert-secondary fs-5">
-                    Palete localizado em agrupamento
+                    Palete localizado em englobado
                 </div>
 
                 <div class="row mb-2">
-                    <div class="col-md-6">
-                        <strong>Estado:</strong> <span id="rEstado"></span>
+                    <div class="col-md-3">
+                        <strong>Id Englogamento:</strong> <span id="rIdAgrupamento"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>SE:</strong> <span id="rEstado"></span>
                     </div>
                     <div class="col-md-6">
                         <strong>Centralizadora:</strong> <span id="rCentral"></span>
@@ -44,6 +47,21 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <div class="col-12 text-center">
+                        <button id="btnImprimir" class="btn btn-success fs-5 mt-3" disabled>
+                            Rótulo DataMatrix
+                        </button>
+                        <button id="btnImprimirQR" class="btn btn-primary fs-5 mt-3" disabled>
+                            Rótulo QR Code
+                        </button>
+                        <button id="btnImprimirQRUnificado" class="btn btn-warning fs-5 mt-3" disabled>
+                            Rótulo QR Code Unificado
+                        </button>
+                    </div>
+                </div>
+
+
                 <table class="table table-sm table-bordered fs-5">
                     <thead class="table-light">
                         <tr>
@@ -55,16 +73,7 @@
                     <tbody id="tabelaPaletes"></tbody>
                 </table>
 
-                <button id="btnImprimir" class="btn btn-success fs-5 mt-3" disabled>
-                    Imprimir Rótulo DataMatrix
-                </button>
-                <button id="btnImprimirQR" class="btn btn-primary fs-5 mt-3" disabled>
-                    Imprimir Rótulo QR Code
-                </button>
-                <button id="btnImprimirQRUnificado" class="btn btn-warning fs-5 mt-3" disabled>
-                    Imprimir Rótulo QR Code Unificado
-                </button>
-
+                
             </div>
 
         </div>

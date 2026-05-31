@@ -1,5 +1,7 @@
 import { getSuperintendencia } from './getSuperintendencia.js';
+import { getSuperintendenciaOrigem } from './getSuperintendenciaOrigem.js';
 import { getCentralizadora } from './getCentralizadora.js';
+import { getCentralizadoraOrigem } from './getCentralizadoraOrigem.js';
 import { RegistrarAgrupamento } from './registrarAgrupamento.js';
 import { CancelarAgrupamento } from './cancelarAgrupamento.js';
 import { FecharAgrupamento } from './fecharAgrupamento.js';
@@ -12,15 +14,23 @@ let paletes = [];
 let pesoTotal = 0;
 let limiteAtingido = false;
 let opcoesSE = "";
+let opcoesSEOrigem = "";
 let opcoesCentralizadora = "";
+let opcoesCentralizadoraOrigem = "";
 
 const pesoMaximo = 950;
 let id = 0;
 const campoId = document.getElementById("id_agrupamento");
 
 const selectSuperintendencia = document.getElementById("select_superintendencia");
+const selectSuperintendenciaOrigem = document.getElementById("select_superintendencia_origem");
+
 const dadosSE = await getSuperintendencia();
+const dadosSEOrigem = await getSuperintendenciaOrigem();
+
 const selectCentralizadora = document.getElementById("select_centralizadora");
+const selectCentralizadoraOrigem = document.getElementById("select_centralizadora_origem");
+const selectTravarCentralizadora = document.getElementById("select_travar_centralizadora");
 
 const codigoPalete = document.getElementById("codigoPalete");
 const totalPaletesEl = document.getElementById("totalPaletes");
@@ -42,6 +52,45 @@ const modal = new bootstrap.Modal(document.getElementById("modalConfirm"));
 const modalTitulo = document.getElementById("modalTitulo");
 const modalMensagem = document.getElementById("modalMensagem");
 const modalConfirmar = document.getElementById("modalConfirmarAgrupamento");
+
+if (selectSuperintendenciaOrigem && dadosSEOrigem.resultado) {
+            let htmlOptionsSEOrigem = '<option value="" selected disabled>Selecione</option>';
+            
+            dadosSEOrigem.se.forEach(item => {
+                htmlOptionsSEOrigem += `<option value="${item.siglaSe}">${item.siglaSe}</option>`;
+            });
+
+            selectSuperintendenciaOrigem.innerHTML = htmlOptionsSEOrigem;
+
+            opcoesSEOrigem = dadosSEOrigem.se.map(item => 
+                `<option value="${item.siglaSe}">${item.siglaSe}</option>`
+            ).join('');
+
+        }
+
+        selectSuperintendenciaOrigem.onchange = async () => {
+
+    const seOrigem = selectSuperintendenciaOrigem.value;
+    const dadosCentralizadoraOrigem = await getCentralizadoraOrigem(seOrigem);
+    
+    if (dadosCentralizadoraOrigem.resultado) {
+
+            let htmlOptionsCentralizadoraOrigem = '<option value="" selected disabled>Selecione</option>';
+            
+            dadosCentralizadoraOrigem.centralizadora.forEach(item => {
+                htmlOptionsCentralizadoraOrigem += `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`;
+            });
+
+            selectCentralizadoraOrigem.innerHTML = htmlOptionsCentralizadoraOrigem;
+
+            opcoesCentralizadoraOrigem = dadosCentralizadoraOrigem.centralizadora.map(item => 
+                `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`
+            ).join('');
+
+        }//select_centralizadora
+
+};
+
 
 
 if (selectSuperintendencia && dadosSE.resultado) {
@@ -97,12 +146,13 @@ btnAbrir.onclick = async () => {
 
     if(id){                
         campoId.innerText = id;
-        selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
+        btnFechar.disabled = selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
         btnAbrir.classList.add("d-none");
         btnCancelar.classList.remove("d-none");
         btnFechar.classList.remove("d-none");
         areaLancamento.classList.remove("d-none");
-        mostrarToast("Agrupamento aberto", "sucesso");
+        
+        mostrarToast("Englobamento aberto", "sucesso");
     }
 
     
@@ -118,7 +168,7 @@ codigoPalete.addEventListener("keypress", e => {
 btnInserir.onclick = inserirPalete;
 
 async function inserirPalete() {
-    if (limiteAtingido) return;
+    //if (limiteAtingido) return;
 
     const codigo = codigoPalete.value;
     //if (codigo.length != 97) return;
@@ -143,10 +193,19 @@ async function inserirPalete() {
     const siglaCentralizadora = codigo.substring(91, 94).toUpperCase();
     const siglaSe = codigo.substring(94, 97).toUpperCase();
 
+    
     if (siglaSe.trim() !== selectSuperintendencia.value) {
         abrirModal(
             "Palete Divergente",
             `O palete ${numero} não é destinado a SE/${selectSuperintendencia.value}.<br>Verifique o palete informado.`
+        );
+        return;
+    }
+
+    if(selectTravarCentralizadora.value == 'SIM' && (siglaCentralizadora.trim() !== selectCentralizadora.value)){
+        abrirModal(
+            "Palete Divergente",
+            `O palete ${numero} não é destinado a Centralizadora: ${selectCentralizadora.value}.<br>Verifique o palete informado.`
         );
         return;
     }
@@ -162,15 +221,17 @@ async function inserirPalete() {
         return;
     }
 
+
     if ((pesoTotal + peso) > pesoMaximo) {
+        
+        codigoPalete.disabled = true;
         limiteAtingido = true;
-        //codigoPalete.disabled = true;
 
         abrirModal(
             "Limite de Peso Atingido",
             `Palete ${numero} desconsiderado.<br>
              Peso total atingiu ou ultrapassou 950 kg.<br>
-             Feche ou cancele o agrupamento.`
+             Feche ou cancele o englobamento.`             
         );
         return;
     }   
@@ -219,9 +280,15 @@ async function removerPalete(numero) {
 function atualizarTela() {
     totalPaletesEl.textContent = paletes.length;
     //pesoTotalEl.textContent = pesoTotal.toFixed(3);
-    pesoTotalEl.textContent = pesoTotal;
+    pesoTotalEl.textContent = pesoTotal.toFixed(3).replace('.', ',');
 
     tabelaPaletes.innerHTML = "";
+
+    if(paletes.length > 1){
+        btnFechar.disabled = false;
+    }else{
+        btnFechar.disabled = true;
+    }
 
     [...paletes].reverse().forEach((p, index) => {
         const registro = paletes.length - index;
@@ -229,29 +296,28 @@ function atualizarTela() {
             <tr>
                 <td>${registro}</td>
                 <td>${p.numero}</td>
-                <td>${p.peso}</td>
+                <td>${p.peso.toFixed(3).replace('.', ',')}</td>
                 <td>${p.siglaCentralizadora}</td>
                 <td>${p.siglaSe}</td>
-                <td>${p.codigoCompleto}</td>
             </tr>`;
     });
 }
 
 btnFechar.onclick = () => {
     abrirModal(
-        "Fechar Agrupamento",
-        `Confirma o fechamento do agrupamento?<br><br>
+        "Fechar Englobamento",
+        `Você realmente quer fechar o englobamento?<br><br>
          <strong>Paletes:</strong> ${paletes.length}<br>
-         <strong>Peso Total:</strong> ${pesoTotal} kg`,
+         <strong>Peso Total:</strong> ${pesoTotal.toFixed(3).replace('.', ',')} kg`,
         async () => {
             const fecharAgrupamento = new FecharAgrupamento();
             fecharAgrupamento.setDados(id, 'FECHADO');            
             const fechar = await fecharAgrupamento.fechar();
             if(fechar){
-                mostrarToast("Agrupamento fechado", "sucesso");
+                mostrarToast("Englobamento fechado", "sucesso");
                 location.reload();
             }else{
-                mostrarToast("Erro ao fechar o agrupamento", "erro");
+                mostrarToast("Erro ao fechar o Englobamento", "erro");
             }            
             
         }
@@ -260,17 +326,17 @@ btnFechar.onclick = () => {
 
 btnCancelar.onclick = () => {
     abrirModal(
-        "Cancelar Agrupamento",
+        "Cancelar Englobamento",
         "Todos os paletes registrados serão descartados.",
         async () => {
             const cancelarAgrupamento = new CancelarAgrupamento();
             cancelarAgrupamento.setDados(id, 'CANCELADO');            
             const cancelar = await cancelarAgrupamento.cancelar();
             if(cancelar){
-                mostrarToast("Agrupamento cancelado", "sucesso");
+                mostrarToast("Englobamento cancelado", "sucesso");
                 location.reload();
             }else{
-                mostrarToast("Erro ao cancelar o agrupamento", "erro");
+                mostrarToast("Erro ao cancelar o Englobamento", "erro");
             }            
             
         }

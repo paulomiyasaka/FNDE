@@ -128,10 +128,15 @@ GROUP BY
         $sql = "SELECT 
         pa.id_agrupamento,
         pa.numero_palete,
+        a.sigla_se,
+        c.nome_centralizadora,
+        c.sigla_centralizadora,
         a.status     
         FROM tb_paletes_agrupados pa 
         INNER JOIN tb_agrupamento a 
+        INNER JOIN tb_centralizadora c
         ON pa.id_agrupamento = a.id_agrupamento 
+        AND c.sigla_se = a.sigla_se
         WHERE pa.numero_palete = :palete 
         ORDER BY pa.id_agrupamento DESC 
         LIMIT 1";

@@ -20,7 +20,7 @@ class Logout
 
     }
 
-    public static function logout(?string $motivo = null): void 
+    public static function logout(): void 
 	{
 	    if (session_status() === PHP_SESSION_NONE) {
 	        session_start();
@@ -31,10 +31,7 @@ class Logout
 
 	    // Constrói a URL de redirecionamento
 	    $url = "./login.php";
-	    if ($motivo) {
-	        // urlencode garante que espaços ou caracteres especiais não quebrem a URL
-	        $url .= "?motivo=" . urlencode($motivo);
-	    }
+	   
 
 	    header("Location: " . $url);
 	    exit();

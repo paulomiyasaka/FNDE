@@ -9,7 +9,10 @@ class idAgrupamento
     (
         public readonly int $idAgrupamento,
         public readonly string $palete,
-        public readonly string $status
+        public readonly string $status,
+        public readonly string $siglaSe,
+        public readonly string $siglaCentralizadora,
+        public readonly string $nomeCentralizadora
 
     ) {}
 
@@ -18,7 +21,10 @@ class idAgrupamento
         return new self(
             idAgrupamento: $dados->id_agrupamento,
             palete: $dados->numero_palete,
-            status: $dados->status
+            status: $dados->status,
+            siglaSe: $dados->sigla_se,
+            siglaCentralizadora: $dados->sigla_centralizadora,
+            nomeCentralizadora: $dados->nome_centralizadora
 
         );
     }

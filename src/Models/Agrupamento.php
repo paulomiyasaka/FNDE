@@ -10,8 +10,10 @@ class Agrupamento
         public readonly int $idAgrupamento,
         public readonly int $matricula,
         public readonly string $siglaCentralizadora,
+        public readonly string $nomeCentralizadora,
         public readonly string $siglaSe,
-        public readonly string $status
+        public readonly string $status,
+        public readonly string $dataRegistro
 
     ) {}
 
@@ -21,8 +23,10 @@ class Agrupamento
             idAgrupamento: $dados->id_agrupamento,
             matricula: $dados->matricula,
             siglaCentralizadora: $dados->sigla_centralizadora,
+            nomeCentralizadora: $dados->nome_centralizadora,
             siglaSe: $dados->sigla_se,
-            status: $dados->status
+            status: $dados->status,
+            dataRegistro: $dados->data_registro
 
         );
     }
