@@ -6,6 +6,7 @@ use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
 
 class GerarRotuloUnicoRetratoQRCode {
     private $mpdf;
@@ -13,7 +14,7 @@ class GerarRotuloUnicoRetratoQRCode {
 
     public function __construct() {
         // Inicializa o mPDF configurado estritamente para Retrato (Portrait)
-        $this->mpdf = new Mpdf([
+        $this->mpdf = new mpdf([
             'mode' => 'utf-8',
             'format' => 'A4',
             'margin_left' => 10,
@@ -21,7 +22,7 @@ class GerarRotuloUnicoRetratoQRCode {
             'margin_top' => 10,
             'margin_bottom' => 10
         ]);
-        $this->limitePaletes = 23; // Mantido o limite máximo seguro para leitura única
+        $this->limitePaletes = 23;
     }
 
     /**
@@ -29,6 +30,7 @@ class GerarRotuloUnicoRetratoQRCode {
      * Retorna a imagem codificada em Base64 para incorporação direta no HTML
      */
     private function gerarQrCodeBase64($stringDados) {
+        // Inicializa o builder do QR Code com a string unificada
         $qrCode = new QrCode($stringDados);
         $qrCode->setEncoding(new Encoding('UTF-8'));
         
@@ -36,72 +38,47 @@ class GerarRotuloUnicoRetratoQRCode {
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
         $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Low);
         
+        
+        // Define o tamanho bruto da matriz (pixels)
         $qrCode->setSize(500);
         $qrCode->setMargin(10);
 
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
 
-        return $result->getDataUri();
+        return $result->getDataUri(); // Já retorna no formato 'data:image/png;base64,...'
     }
 
     /**
-     * Renderiza o rótulo unificado otimizado para expedição acelerada com divisão aritmética de dízima
-     * * @param object $dadosGerais Contém: qrCompilacao (ID Master), siglaCentralizadora, nomeCentralizadora, siglaSe, nomeCentralizadoraOrigem, totalPaletes, pesoTotalAgrupamento
-     * @param array $paletes      Lista de objetos vindos do banco de dados (numeroPalete, pesoPrevisto, qrMaster)
+     * Renderiza o rótulo unificado otimizado para expedição acelerada
+     * * @param array $dadosGerais Contém chaves: destino, se, sigla, qtd_total, peso_total, qr_master (21 chars)
+     * @param array $paletes     Lista de objetos vindos do banco de dados (id_etiqueta, peso, qr_97_chars)
      */
     public function renderizar($dadosGerais, array $paletes) {
-        // Divide estritamente no limite configurado por página
+        // Divide estritamente de 15 em 15 paletes por página por segurança operacional
         $paginasDeCarga = array_chunk($paletes, $this->limitePaletes); 
         $totalPaginas = count($paginasDeCarga);
 
-        // --- ENGENHARIA DE DISTRIBUIÇÃO DE PESO E TRATAMENTO DE DÍZIMA ---
-        $pesoRealTotal = (float) $dadosGerais->pesoTotalAgrupamento;
-        $totalPaletesDoGrupo = count($paletes);
-        
-        // Evita divisão por zero caso venha vazio por inconsistência
-        $pesoMedioUnitario = $totalPaletesDoGrupo > 0 ? ($pesoRealTotal / $totalPaletesDoGrupo) : 0;
-        
-        $pesoAcumuladoGasto = 0.0;
-
         foreach ($paginasDeCarga as $index => $paletesDaPagina) {
             $paginaAtual = $index + 1;
-            $qtdPaletesNaPagina = count($paletesDaPagina);
             
-            // Se for a última página, absorve o resto/dízima matemática, senão faz a média proporcional
-            if ($paginaAtual === $totalPaginas) {
-                $pesoCalculadoDaPagina = $pesoRealTotal - $pesoAcumuladoGasto;
-            } else {
-                $pesoCalculadoDaPagina = round($pesoMedioUnitario * $qtdPaletesNaPagina, 2);
-                $pesoAcumuladoGasto += $pesoCalculadoDaPagina;
-            }
+            // 1. INICIALIZA A STRING COM OS DADOS GERAIS (21 caracteres)
+            $stringCompletaMaster = $dadosGerais->qrCompilacao;
 
-            // Formata o peso final da página com duas casas decimais padrão para a string
-            $pesoPaginaFormatado = number_format($pesoCalculadoDaPagina, 2, '.', '');
-
-            // Modificação do sufixo do ID para diferenciar as sub-páginas (Opção 4)
-            // Ex: Se o master é ID123, vira ID123_A, ID123_B, etc.
-            $sufixoPagina = chr(64 + $paginaAtual); // 1 = A, 2 = B, 3 = C...
-            $idSubLotePagina = $dadosGerais->qrCompilacao . '_' . $sufixoPagina;
-
-            // --- 1. MONTAGEM DA STRING ATÔMICA DO QR CODE ---
-            // Posição 0: ID do Sub-lote | Posição 1: Peso Real Fracionado da Página
-            $stringCompletaMaster = $idSubLotePagina . '|' . $pesoPaginaFormatado;
-
-            // Concatena o restante dos paletes (97 caracteres cada)
+            // 2. LOOP DE CONCATENAÇÃO COM O DELIMITADOR "|" NA FRENTE DE CADA CÓDIGO DE 97 CARACTERES
             foreach ($paletesDaPagina as $palete) {
                 $stringCompletaMaster .= '|' . $palete->qrMaster;
             }
 
-            // --- 2. GERAÇÃO DO QR CODE ÚNICO ---
+            // 3. GERAÇÃO DO CÓDIGO FONTE MÃE VIA ENDROID QR CODE
             $linkQrCodeUnificado = $this->gerarQrCodeBase64($stringCompletaMaster);
 
-            // --- 3. SEPARAÇÃO SIMÉTRICA PARA AS DUAS TABELAS VISUAIS ---
-            $pontoCorte = ceil($qtdPaletesNaPagina / 2);
+            // 4. SEPARAÇÃO BALANCEADA PARA AS DUAS TABELAS DO RODAPÉ (Máx 20% da folha)
+            $pontoCorte = ceil(count($paletesDaPagina) / 2);
             $tabelaEsquerda = array_slice($paletesDaPagina, 0, $pontoCorte);
             $tabelaDireita = array_slice($paletesDaPagina, $pontoCorte);
 
-            // --- 4. MONTAGEM ESTRUTURAL DO HTML ---
+            // 5. MONTAGEM ESTRUTURAL DO HTML
             $html = $this->obterEstilosCSS();
             $html .= "
             <div class='header-container'>
@@ -116,17 +93,18 @@ class GerarRotuloUnicoRetratoQRCode {
                     <tr>
                         <td colspan='3' class='saida-bold'>{$dadosGerais->siglaCentralizadora} - {$dadosGerais->nomeCentralizadora}</td>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaSe}</td>
+                        
                     </tr>
                     <tr>
-                        <td class='label' style='width: 35%;'>Origem:</td>
-                        <td class='label' style='width: 20%;'>Qtde Paletes (Folha/Total):</td>
-                        <td class='label' style='width: 25%;'>Peso da Página (Aferido):</td>
+                        <td class='label' style='width: 40%;'>Origem:</td>
+                        <td class='label' style='width: 20%;'>Qtde de paletes:</td>
+                        <td class='label' style='width: 25%;'>Peso Total - kg</td>
                         <td class='label' style='width: 20%;'>Página:</td>
                     </tr>
                     <tr>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->nomeCentralizadoraOrigem}</td>
-                        <td class='saida-bold' style='text-align: center;'>{$qtdPaletesNaPagina} / {$dadosGerais->totalPaletes}</td>
-                        <td class='saida-bold' style='text-align: center; color: #000;'>".number_format($pesoPaginaFormatado, 2, ',', '.')." kg</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->totalPaletes}</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->pesoTotalAgrupamento} kg</td>
                         <td class='saida-bold' style='text-align: center;'>{$paginaAtual} de {$totalPaginas}</td>
                     </tr>
                 </table>
@@ -139,7 +117,7 @@ class GerarRotuloUnicoRetratoQRCode {
             </div>
 
             <div class='footer-container'>
-            <div class='instrucao-leitura'>Relação de paletes englobados neste rótulo:</div>
+            <div class='instrucao-leitura'>Relação de paletes englobados:</div>
                 <table style='width: 100%; border: none; border-collapse: collapse; table-layout: fixed;'>
                     <tr>
                         <td style='width: 4%; border: none;'></td>
@@ -156,7 +134,7 @@ class GerarRotuloUnicoRetratoQRCode {
                                 foreach ($tabelaEsquerda as $p) {
                                     $html .= "<tr>
                                         <td>{$p->numeroPalete}</td>
-                                        <td style='text-align: center;'>".number_format($p->pesoPrevisto, 2, ',', '.')."</td>
+                                        <td>{$p->pesoPrevisto}</td>
                                     </tr>";
                                 }
                                 $html .= "</tbody>
@@ -177,10 +155,10 @@ class GerarRotuloUnicoRetratoQRCode {
                                 foreach ($tabelaDireita as $p) {
                                     $html .= "<tr>
                                         <td>{$p->numeroPalete}</td>
-                                        <td style='text-align: center;'>".number_format($p->pesoPrevisto, 2, ',', '.')."</td>
+                                        <td>{$p->pesoPrevisto}</td>
                                     </tr>";
                                 }
-                                // Linha de compensação visual se o número de itens na página for ímpar
+                                // Linha de compensação visual se o número for ímpar
                                 if (count($tabelaDireita) < count($tabelaEsquerda)) {
                                     $html .= "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
                                 }
@@ -193,7 +171,7 @@ class GerarRotuloUnicoRetratoQRCode {
                 </table>
             </div>";
 
-            // Envia o HTML processado da folha atual para a engine do mPDF
+            // Envia o HTML processado para a engine do mPDF
             $this->mpdf->WriteHTML($html);
             
             // Adiciona nova folha se ainda houver blocos de paletes pendentes
@@ -202,12 +180,15 @@ class GerarRotuloUnicoRetratoQRCode {
             }
         }
 
-        // Envia o PDF compilado direto para o navegador do operador
+        // Output padrão forçando exibição no navegador (Inline)
         $this->mpdf->Output('Rotulo_Unico_Expedicao_QRCode.pdf', 'I');
     }
 
     /**
-     * Engine CSS responsável pelo travamento das margens e cantos arredondados da moldura
+     * Engine CSS responsável pela compressão milimétrica e posicionamento absoluto do rodapé
+     */
+    /**
+     * Engine CSS atualizada - Proteção total contra quebra e estouro de margem
      */
     private function obterEstilosCSS() {
         return "
@@ -215,6 +196,7 @@ class GerarRotuloUnicoRetratoQRCode {
             @page { margin: 10mm; }
             body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; }
             
+            /* CSS do Cabeçalho - Dados do Agrupamento FNDE */
             .header-container { width: 100%; margin-bottom: 5mm; }
             .tabela-cabecalho { width: 100%; border-collapse: collapse; table-layout: fixed; }
             .tabela-cabecalho td { border: 1px solid black; padding: 4px 6px; vertical-align: top; }
@@ -222,6 +204,7 @@ class GerarRotuloUnicoRetratoQRCode {
             .label { font-size: 10pt; color: #333; font-weight: bold; }
             .saida-bold { font-size: 14pt; font-weight: bold; }
 
+            /* CSS da Área Central */
             .centro-container { 
                 width: 100%; 
                 text-align: center; 
@@ -229,33 +212,32 @@ class GerarRotuloUnicoRetratoQRCode {
                 margin-bottom: 3mm; 
             }
             .instrucao-leitura { 
-                font-size: 13pt; 
+                font-size: 14pt; 
                 font-weight: bold; 
-                margin-bottom: 4mm; 
-                padding-bottom: 2mm;
+                margin-bottom: 6mm; 
+                padding-bottom: 3mm;
                 text-align: center; 
                 width: 100%;
             }
             
             .wrapper-qr {
-                width: 110mm;
-                height: 110mm;
+                width: 130mm;
+                height: 130mm;
                 margin: 0 auto;
                 border: 8px solid #000000;
-                border-radius: 15mm;
+                border-radius: 20mm;
                 padding: 5mm;
                 background-color: #FFFFFF;
                 display: block;
             }
             .qr-unificado-img { 
-                padding-top: 3mm;
-                width: 100mm; 
-                height: 100mm; 
-                display: flex;
-                align-items: center;
+                width: 125mm; 
+                height: 125mm; 
+                display: block;
                 margin: 0 auto;
             }
 
+            /* --- AJUSTE DEFINITIVO PARA O RODAPÉ --- */
             .footer-container { 
                 width: 100%; 
                 position: absolute;
@@ -263,10 +245,11 @@ class GerarRotuloUnicoRetratoQRCode {
                 left: 0;
             }
             
+            /* Tabela interna de dados dos paletes */
             .tabela-paletes { 
                 width: 100%; 
                 border-collapse: collapse; 
-                table-layout: fixed;
+                table-layout: fixed; /* Não deixa a tabela esticar além do seu container de célula */
             }
             .tabela-paletes th { 
                 background-color: #EFEFEF; 
@@ -280,7 +263,7 @@ class GerarRotuloUnicoRetratoQRCode {
                 border: 1px solid #000; 
                 padding: 4px 6px; 
                 font-weight: bold;
-                font-size: 11pt;
+                font-size: 12pt;
                 line-height: 1.1;
                 text-align: center;
             }

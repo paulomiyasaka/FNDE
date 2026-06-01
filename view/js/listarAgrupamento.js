@@ -50,9 +50,10 @@ async function carregarListaAgrupamentos() {
 
         linha.innerHTML = `
             <td>${item.idAgrupamento}</td>
-            <td>${item.matricula}</td>
             <td>${item.siglaSe}</td>
             <td>${item.siglaCentralizadora} - ${item.nomeCentralizadora}</td>
+            <td>${item.quantidadePaletes}</td>
+            <td>${item.quantidadeEncomendas}</td>
             <td>${item.dataRegistro}</td>
             <td><span class="badge ${badgeColor}">${linkBtn}</span></td>
         `;

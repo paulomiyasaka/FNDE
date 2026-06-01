@@ -71,8 +71,8 @@ class GerarRotuloAgrupamento {
                     <tr>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaCentralizadora}</td>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->totalPaletes}</td>
-                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->pesoTotalAgrupamento}</td>
-                        <td class='saida-bold' style='text-align: center;'>CLI CAJAMAR</td>
+                        <td class='saida-bold' style='text-align: center;'>".number_format($dadosGerais->pesoTotalAgrupamento, 2, ',', '.')."</td>
+                        <td class='saida-bold' style='text-align: center;'>{$dadosGerais->nomeCentralizadoraOrigem}</td>
                         <td class='saida-bold' style='text-align: center;'><span class='saida'>{$paginaAtual} de {$totalPaginas}</span></td>
                     </tr>
                 </table>
@@ -99,7 +99,7 @@ class GerarRotuloAgrupamento {
                         <div class='container-qr'>
                             <img src='{$dmPaleteImg}' class='qr-palete'>
                         </div>
-                        <div class='palete-peso'>Peso (kg): <span class='saida-bold'>{$palete->pesoPrevisto}</span></div>
+                        <div class='palete-peso'>Peso (kg): <span class='saida-bold'>".number_format($palete->pesoPrevisto, 2, ',', '.')."</span></div>
                     </div>
                 </td>";
                 

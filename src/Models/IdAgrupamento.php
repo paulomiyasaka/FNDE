@@ -12,7 +12,10 @@ class idAgrupamento
         public readonly string $status,
         public readonly string $siglaSe,
         public readonly string $siglaCentralizadora,
-        public readonly string $nomeCentralizadora
+        public readonly string $nomeCentralizadora,
+        public readonly string $siglaSeOrigem,
+        public readonly string $siglaCentralizadoraOrigem,
+        public readonly string $nomeCentralizadoraOrigem
 
     ) {}
 
@@ -24,7 +27,10 @@ class idAgrupamento
             status: $dados->status,
             siglaSe: $dados->sigla_se,
             siglaCentralizadora: $dados->sigla_centralizadora,
-            nomeCentralizadora: $dados->nome_centralizadora
+            nomeCentralizadora: $dados->nome_centralizadora,
+            siglaSeOrigem: $dados->sigla_se_origem,
+            siglaCentralizadoraOrigem: $dados->sigla_centralizadora_origem,
+            nomeCentralizadoraOrigem: $dados->nome_centralizadora_origem
 
         );
     }

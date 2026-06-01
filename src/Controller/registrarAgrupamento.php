@@ -12,9 +12,10 @@ $matricula = $_POST['matricula'] ?? '';
 $sigla_centralizadora = $_POST['centralizadora'] ?? '';
 $sigla_se = $_POST['se'] ?? '';
 $status = $_POST['status'] ?? '';
+$sigla_centralizadora_origem = $_POST['centralizadora_origem'] ?? '';
+$sigla_se_origem = $_POST['se_origem'] ?? '';
 
-
-$agrupamento = new RegistrarAgrupamento($matricula, $sigla_centralizadora, $sigla_se, $status);
+$agrupamento = new RegistrarAgrupamento($matricula, $sigla_se_origem, $sigla_centralizadora_origem, $sigla_se, $sigla_centralizadora, $status);
 $criar = $agrupamento->criar();
 if($criar){
     $retorno['resultado'] = TRUE;

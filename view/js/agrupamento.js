@@ -54,17 +54,25 @@ const modalMensagem = document.getElementById("modalMensagem");
 const modalConfirmar = document.getElementById("modalConfirmarAgrupamento");
 
 if (selectSuperintendenciaOrigem && dadosSEOrigem.resultado) {
-            let htmlOptionsSEOrigem = '<option value="" selected disabled>Selecione</option>';
-            
+            //let htmlOptionsSEOrigem = '<option value="" selected disabled>Selecione</option>';
+            let htmlOptionsSEOrigem = '';
+            let contador = 1;
             dadosSEOrigem.se.forEach(item => {
-                htmlOptionsSEOrigem += `<option value="${item.siglaSe}">${item.siglaSe}</option>`;
+                if(contador == 1) {
+                    htmlOptionsSEOrigem += `<option value="${item.siglaSe}" selected>${item.siglaSe}</option>`;    
+                }else{
+                    htmlOptionsSEOrigem += `<option value="${item.siglaSe}">${item.siglaSe}</option>`;
+                }
+                
             });
 
             selectSuperintendenciaOrigem.innerHTML = htmlOptionsSEOrigem;
 
+            /*
             opcoesSEOrigem = dadosSEOrigem.se.map(item => 
                 `<option value="${item.siglaSe}">${item.siglaSe}</option>`
             ).join('');
+            */
 
         }
 
@@ -75,17 +83,22 @@ if (selectSuperintendenciaOrigem && dadosSEOrigem.resultado) {
     
     if (dadosCentralizadoraOrigem.resultado) {
 
-            let htmlOptionsCentralizadoraOrigem = '<option value="" selected disabled>Selecione</option>';
-            
+            //let htmlOptionsCentralizadoraOrigem += `<option value="CAJ" selected>CLI CAJAMAR</option>`;    
+            let htmlOptionsCentralizadoraOrigem = '';
+            let contador = 1;
             dadosCentralizadoraOrigem.centralizadora.forEach(item => {
-                htmlOptionsCentralizadoraOrigem += `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`;
+                if(contador == 1) {
+                    htmlOptionsCentralizadoraOrigem += `<option value="${item.siglaSe}" selected>${item.siglaSe}</option>`;    
+                    //htmlOptionsCentralizadoraOrigem += `<option value="CAJ" selected>CLI CAJAMAR</option>`;    
+                }else{
+                    htmlOptionsCentralizadoraOrigem += `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`;
+                }
+                
             });
 
             selectCentralizadoraOrigem.innerHTML = htmlOptionsCentralizadoraOrigem;
 
-            opcoesCentralizadoraOrigem = dadosCentralizadoraOrigem.centralizadora.map(item => 
-                `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`
-            ).join('');
+            
 
         }//select_centralizadora
 
@@ -101,11 +114,11 @@ if (selectSuperintendencia && dadosSE.resultado) {
             });
 
             selectSuperintendencia.innerHTML = htmlOptionsSE;
-
+            /*
             opcoesSE = dadosSE.se.map(item => 
                 `<option value="${item.siglaSe}">${item.siglaSe}</option>`
             ).join('');
-
+            */
         }//select_destinatario
 
 
@@ -123,10 +136,11 @@ selectSuperintendencia.onchange = async () => {
             });
 
             selectCentralizadora.innerHTML = htmlOptionsCentralizadora;
-
+            /*
             opcoesCentralizadora = dadosCentralizadora.centralizadora.map(item => 
                 `<option value="${item.siglaCentralizadora}">${item.nomeCentralizadora}</option>`
             ).join('');
+            */
 
         }//select_centralizadora
 
@@ -134,19 +148,25 @@ selectSuperintendencia.onchange = async () => {
 
 
 btnAbrir.onclick = async () => {
-    if (!selectSuperintendencia.value || !selectCentralizadora.value) {
-        mostrarToast("Preencha SE e Centralizadora", "erro");
+    if (!selectSuperintendenciaOrigem.value || !selectCentralizadoraOrigem.value) {
+        mostrarToast("Preencha a SE e a Centralizadora de origem", "erro");
         return;
     }
+
+    if (!selectSuperintendencia.value || !selectCentralizadora.value) {
+        mostrarToast("Preencha a SE e a Centralizadora de destino", "erro");
+        return;
+    }
+
     const session = await getSession();
     const matricula = session.matricula;
     const agrupamento = new RegistrarAgrupamento();
-    agrupamento.setDados(matricula, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
+    agrupamento.setDados(matricula, selectSuperintendenciaOrigem.value, selectCentralizadoraOrigem.value, selectSuperintendencia.value, selectCentralizadora.value, 'ABERTO');
     id = await agrupamento.registrar();
 
     if(id){                
         campoId.innerText = id;
-        btnFechar.disabled = selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
+        btnFechar.disabled = selectSuperintendenciaOrigem.disabled = selectCentralizadoraOrigem.disabled = selectSuperintendencia.disabled = selectCentralizadora.disabled = true;
         btnAbrir.classList.add("d-none");
         btnCancelar.classList.remove("d-none");
         btnFechar.classList.remove("d-none");

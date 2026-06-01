@@ -7,17 +7,18 @@
         </div>
         <div class="card-body">
             <table class="table table-sm table-bordered fs-5" id="tabelaAgrupamentos">
-                <thead class="table-light">
+                <thead class="table-light text-center">
                     <tr>
-                        <th>ID</th>
-                        <th>Matrícula</th>
-                        <th>SE</th>
-                        <th>Centralizadora</th>
-                        <th>Data</th>
-                        <th>Status</th>
+                        <th width="5%">ID</th>
+                        <th width="10%">SE</th>
+                        <th width="30%">Centralizadora</th>
+                        <th width="10%">Qtd. Paletes</th>
+                        <th width="10%">Qtd. Encomendas</th>
+                        <th width="20%">Data</th>
+                        <th width="10%">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                     <tr>
                         <td colspan="4" class="text-center text-muted">Carregando agrupamentos...</td>
                     </tr>
@@ -46,7 +47,7 @@
                     <div class="col-md-8">
                         <label class="form-label">Centralizadora Origem:</label>
                         <select id="select_centralizadora_origem" name="centralizadora_origem" class="form-select fs-5" required>
-                            <option value="" selected disabled>Selecione</option>
+                            <option value="CAJ" selected >CLI CAJAMAR</option>
                         </select>
                     </div>
 
@@ -78,31 +79,32 @@
             <div class="card-body fs-5">
 
                 <div class="row mb-3">
-                    <div class="col-md-12 alert alert-secondary fs-5">
+                    <div class="col-md-4 alert alert-secondary fs-5">
                         ID Englobamento: <strong id="id_agrupamento"></strong>
                     </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6 alert alert-secondary fs-5">
+                
+                    <div class="col-md-4 alert alert-secondary fs-5">
                         Paletes: <strong id="totalPaletes">0</strong>
                     </div>
-                    <div class="col-md-6 alert alert-secondary fs-5">
+                    <div class="col-md-4 alert alert-secondary fs-5">
                         Peso Total (kg): <strong id="pesoTotal">0.000</strong>
                     </div>                
                 </div>
 
-                <div class="input-group col-3 mb-3">
-                    
-                    <label class="form-label">Travar Centralizadora:</label>
+                <div class="row input-group">
+                    <div class="col-md-6 alert alert-secondary fs-5">
+                    <label class="form-label">Travar Lançamento de Paletes para a Centralizadora Destino:</label>
+                    </div>
+                    <div class="col-md-6 alert alert-secondary fs-5">
                         <select id="select_travar_centralizadora" name="travar_centralizadora" class="form-select fs-5" required>
                             <option value="SIM" selected>SIM</option>
                             <option value="NAO">NÃO</option>
                         </select>
+                    </div>
                 </div>
 
                 <div class="input-group mb-3">
-                    <input id="codigoPalete" class="form-control fs-5" placeholder="Código do palete">                    
+                    <input id="codigoPalete" class="form-control text-center fs-4" placeholder="Informe o código do palete">                    
                     <button id="btnInserir" class="btn btn-primary fs-5">Inserir</button>
                 </div>
 

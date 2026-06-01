@@ -13,7 +13,9 @@ class Agrupamento
         public readonly string $nomeCentralizadora,
         public readonly string $siglaSe,
         public readonly string $status,
-        public readonly string $dataRegistro
+        public readonly string $dataRegistro,
+        public readonly string $quantidadePaletes,
+        public readonly string $quantidadeEncomendas
 
     ) {}
 
@@ -26,7 +28,9 @@ class Agrupamento
             nomeCentralizadora: $dados->nome_centralizadora,
             siglaSe: $dados->sigla_se,
             status: $dados->status,
-            dataRegistro: $dados->data_registro
+            dataRegistro: $dados->data_registro,
+            quantidadePaletes: $dados->quantidade_paletes,
+            quantidadeEncomendas: $dados->quantidade_encomendas
 
         );
     }

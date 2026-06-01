@@ -4,13 +4,17 @@ export class RegistrarAgrupamento {
         this.se = '';
         this.centralizadora = '';
         this.status = '';
+        this.se_origem = '';
+        this.centralizadora_origem = '';
     }
 
-    setDados(matricula, se, centralizadora, status) {
+    setDados(matricula, se_origem, centralizadora_origem, se, centralizadora, status) {
         this.matricula = matricula;
         this.se = se;
         this.centralizadora = centralizadora;
         this.status = status;
+        this.se_origem = se_origem;
+        this.centralizadora_origem = centralizadora_origem;
     }
 
     async registrar() {
@@ -19,6 +23,8 @@ export class RegistrarAgrupamento {
         formData.append('se', this.se);
         formData.append('centralizadora', this.centralizadora);
         formData.append('status', this.status);
+        formData.append('se_origem', this.se_origem);
+        formData.append('centralizadora_origem', this.centralizadora_origem);
         //alert(this.matricula + " - SE: "+this.se+ " - centralizadora: " +this.centralizadora+" - status: "+this.status);
         try{
             const url = 'src/Controller/registrarAgrupamento.php';
