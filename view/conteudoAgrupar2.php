@@ -47,7 +47,7 @@
                     <div class="col-md-8">
                         <label class="form-label">Centralizadora Origem:</label>
                         <select id="select_centralizadora_origem" name="centralizadora_origem" class="form-select fs-5" required>
-                            <option value="CAJ" selected >CLI CAJAMAR</option>
+                            <option value="CAJ" selected >CLI CAJAMAR RT</option>
                         </select>
                     </div>
 

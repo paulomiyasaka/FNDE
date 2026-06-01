@@ -1,12 +1,12 @@
-export async function getCentralizadoraOrigem(se) {
+export async function getCentralizadoraOrigem() {
 	
-    const formData = new FormData();
-    formData.append('se', se);
+    //const formData = new FormData();
+    //formData.append('se', se);
     try{
         const url = 'src/Controller/GetCentralizadoraOrigem.php';
         const response = await fetch(url, {
-            method: 'POST',
-            body: formData
+            method: 'POST'
+            //body: formData
         });
         const data = await response.json();
         //console.log("Dados: "+data.centralizadora);
