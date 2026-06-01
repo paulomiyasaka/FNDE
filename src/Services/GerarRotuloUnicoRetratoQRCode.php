@@ -82,11 +82,12 @@ class GerarRotuloUnicoRetratoQRCode {
             // Modificação do sufixo do ID para diferenciar as sub-páginas (Opção 4)
             // Ex: Se o master é ID123, vira ID123_A, ID123_B, etc.
             $sufixoPagina = chr(64 + $paginaAtual); // 1 = A, 2 = B, 3 = C...
-            $idSubLotePagina = $dadosGerais->qrCompilacao . '_' . $sufixoPagina;
+            $idSubLotePagina = 'ID'. sprintf("%010d", $dadosGerais->idAgrupamento) . '_' . $sufixoPagina;
 
             // --- 1. MONTAGEM DA STRING ATÔMICA DO QR CODE ---
             // Posição 0: ID do Sub-lote | Posição 1: Peso Real Fracionado da Página
-            $stringCompletaMaster = $idSubLotePagina . '|' . $pesoPaginaFormatado;
+            //$stringCompletaMaster = $idSubLotePagina . '|' . $pesoRealTotal . '|' . $pesoPaginaFormatado;
+            $stringCompletaMaster = $idSubLotePagina . '|' . sprintf("%011.3f", $pesoRealTotal) . '|' . sprintf("%011.3f", $pesoCalculadoDaPagina);
 
             // Concatena o restante dos paletes (97 caracteres cada)
             foreach ($paletesDaPagina as $palete) {

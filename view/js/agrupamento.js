@@ -304,7 +304,7 @@ function atualizarTela() {
 
     tabelaPaletes.innerHTML = "";
 
-    if(paletes.length > 1){
+    if(paletes.length >= 1){
         btnFechar.disabled = false;
     }else{
         btnFechar.disabled = true;
