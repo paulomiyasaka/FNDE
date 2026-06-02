@@ -9,9 +9,13 @@
           <div class="col-6">
             <div class="collapse navbar-collapse float justify-content-evenly" id="navbarNav">
               <ul class="navbar-nav">
+                <?php 
+                if($usuario['perfil'] == 'ADMINISTRADOR' OR $usuario['perfil'] == 'GESTOR'){
+                ?>
                 <li class="nav-item">
                   <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="agrupar.php">Englobar</a>
                 </li>
+                <?php } ?>
                 <li class="nav-item">
                   <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="rotulos.php">Rótulos</a>
                 </li>

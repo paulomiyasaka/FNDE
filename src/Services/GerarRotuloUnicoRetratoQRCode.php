@@ -10,6 +10,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 class GerarRotuloUnicoRetratoQRCode {
     private $mpdf;
     private $limitePaletes;
+    private $pesoTara;
 
     public function __construct() {
         // Inicializa o mPDF configurado estritamente para Retrato (Portrait)
@@ -21,7 +22,8 @@ class GerarRotuloUnicoRetratoQRCode {
             'margin_top' => 10,
             'margin_bottom' => 10
         ]);
-        $this->limitePaletes = 23; // Mantido o limite máximo seguro para leitura única
+        $this->limitePaletes = 23;
+        $this->pesoTara = 17.0;
     }
 
     /**
@@ -34,9 +36,9 @@ class GerarRotuloUnicoRetratoQRCode {
         
         // Nível de correção Low (L) garante menor densidade de blocos para strings longas,
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
-        $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Low);
+        $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium);
         
-        $qrCode->setSize(500);
+        $qrCode->setSize(800);
         $qrCode->setMargin(10);
 
         $writer = new PngWriter();
@@ -78,16 +80,26 @@ class GerarRotuloUnicoRetratoQRCode {
 
             // Formata o peso final da página com duas casas decimais padrão para a string
             $pesoPaginaFormatado = number_format($pesoCalculadoDaPagina, 2, '.', '');
-
+            $pesoRealTotalFormatado = number_format($pesoRealTotal, 2, '.', '');
+            $pesoLiquido = $pesoRealTotal - $this->pesoTara;
+            $pesoLiquidoFormatado = number_format($pesoLiquido, 2, '.', '');
             // Modificação do sufixo do ID para diferenciar as sub-páginas (Opção 4)
             // Ex: Se o master é ID123, vira ID123_A, ID123_B, etc.
-            $sufixoPagina = chr(64 + $paginaAtual); // 1 = A, 2 = B, 3 = C...
-            $idSubLotePagina = 'ID'. sprintf("%010d", $dadosGerais->idAgrupamento) . '_' . $sufixoPagina;
+            //$sufixoPagina = chr(64 + $paginaAtual); // 1 = A, 2 = B, 3 = C...
+            //$idSubLotePagina = 'ID'. sprintf("%010d", $dadosGerais->idAgrupamento) . '_' . $sufixoPagina;
+            $idSubLotePagina = 'ID'. sprintf("%010d", $dadosGerais->idAgrupamento);
 
             // --- 1. MONTAGEM DA STRING ATÔMICA DO QR CODE ---
             // Posição 0: ID do Sub-lote | Posição 1: Peso Real Fracionado da Página
-            //$stringCompletaMaster = $idSubLotePagina . '|' . $pesoRealTotal . '|' . $pesoPaginaFormatado;
-            $stringCompletaMaster = $idSubLotePagina . '|' . sprintf("%011.3f", $pesoRealTotal) . '|' . sprintf("%011.3f", $pesoCalculadoDaPagina);
+            $stringCompletaMaster = $idSubLotePagina . '|' . sprintf("%011.3f", $pesoRealTotal) . '|' . sprintf("%011.3f", $pesoPaginaFormatado);
+            $pesagem = sprintf("%011.3f", $pesoRealTotal) . sprintf("%011.3f", $this->pesoTara) . sprintf("%011.3f", $pesoLiquido);
+            
+            date_default_timezone_set('America/Sao_Paulo');
+            $codigoDataHora = date('dmYHis');
+            //$stringCompletaMaster = $idSubLotePagina . '|' . $pesagem . $codigoDataHora;
+            
+            $stringCompletaMaster .= '|'.$dadosGerais->qrCompilacao;
+
 
             // Concatena o restante dos paletes (97 caracteres cada)
             foreach ($paletesDaPagina as $palete) {
@@ -120,14 +132,14 @@ class GerarRotuloUnicoRetratoQRCode {
                     </tr>
                     <tr>
                         <td class='label' style='width: 35%;'>Origem:</td>
-                        <td class='label' style='width: 20%;'>Qtde Paletes (Folha/Total):</td>
-                        <td class='label' style='width: 25%;'>Peso da Página (Aferido):</td>
-                        <td class='label' style='width: 20%;'>Página:</td>
+                        <td class='label' style='width: 15%;'>Qtde Paletes (Folha/Total):</td>
+                        <td class='label' style='width: 35%;'>Peso Kg (Folha/Total):</td>
+                        <td class='label' style='width: 15%;'>Página:</td>
                     </tr>
                     <tr>
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->nomeCentralizadoraOrigem}</td>
                         <td class='saida-bold' style='text-align: center;'>{$qtdPaletesNaPagina} / {$dadosGerais->totalPaletes}</td>
-                        <td class='saida-bold' style='text-align: center; color: #000;'>".number_format($pesoPaginaFormatado, 2, ',', '.')." kg</td>
+                        <td class='saida-bold' style='text-align: center; color: #000;'>".number_format($pesoPaginaFormatado, 2, ',', '.')." / ". number_format($pesoRealTotalFormatado, 2, ',', '.') ." kg</td>
                         <td class='saida-bold' style='text-align: center;'>{$paginaAtual} de {$totalPaginas}</td>
                     </tr>
                 </table>
@@ -204,7 +216,7 @@ class GerarRotuloUnicoRetratoQRCode {
         }
 
         // Envia o PDF compilado direto para o navegador do operador
-        $this->mpdf->Output('Rotulo_Unico_Expedicao_QRCode.pdf', 'I');
+        $this->mpdf->Output('Rótulo Englogado ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
     }
 
     /**
@@ -218,7 +230,8 @@ class GerarRotuloUnicoRetratoQRCode {
             
             .header-container { width: 100%; margin-bottom: 5mm; }
             .tabela-cabecalho { width: 100%; border-collapse: collapse; table-layout: fixed; }
-            .tabela-cabecalho td { border: 1px solid black; padding: 4px 6px; vertical-align: top; }
+            .tabela-cabecalho td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; }
+            .tabela-cabecalho th { border: 1px solid red; padding: 4px 6px; vertical-align: top; }
             .titulo-cabecalho { background-color: #EFEFEF; font-weight: bold; text-align: center; font-size: 15pt; padding: 6px !important; text-transform: uppercase; }
             .label { font-size: 10pt; color: #333; font-weight: bold; }
             .saida-bold { font-size: 14pt; font-weight: bold; }
@@ -239,19 +252,19 @@ class GerarRotuloUnicoRetratoQRCode {
             }
             
             .wrapper-qr {
-                width: 110mm;
-                height: 110mm;
+                width: 120mm;
+                height: 120mm;
                 margin: 0 auto;
-                border: 8px solid #000000;
-                border-radius: 15mm;
-                padding: 5mm;
+                border: 6px solid #000000;
+                border-radius: 5mm;
+                padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
             }
             .qr-unificado-img { 
                 padding-top: 3mm;
-                width: 100mm; 
-                height: 100mm; 
+                width: 110mm; 
+                height: 110mm; 
                 display: flex;
                 align-items: center;
                 margin: 0 auto;
