@@ -20,18 +20,17 @@ include 'menuTop.php';
 
 <body>
 <?php
-include 'view/conteudoAgrupar.php';
+include 'view/conteudoGerarRotulo.php';
 include 'view/modalResposta.php';
 //include 'scripts.html';
 //include 'footer.php';
 ?>
 
-<?php
-require_once __DIR__ . '/footer.php';
-require_once __DIR__ . '/scripts.html';
-?>
-<script type="module" src="view/js/agrupamento.js"></script>
-<script type="module" src="view/js/listarAgrupamento.js"></script>
-
+<script type="module" src="view/js/rotulosQRCode.js"></script>
+<!--<script type="module" src="view/js/listarAgrupamento.js"></script> -->
 </body>
 </html>
+
+<?php
+include 'scripts.html';
+?>

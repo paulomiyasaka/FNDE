@@ -54,7 +54,9 @@ async function carregarListaAgrupamentos() {
             <td>${item.siglaCentralizadora} - ${item.nomeCentralizadora}</td>
             <td>${item.quantidadePaletes}</td>
             <td>${item.quantidadeEncomendas}</td>
+            <td>${item.pesoEstimado}</td>
             <td>${item.dataRegistro}</td>
+            <td>${item.horaRegistro}</td>
             <td><span class="badge ${badgeColor}">${linkBtn}</span></td>
         `;
         tbody.appendChild(linha);

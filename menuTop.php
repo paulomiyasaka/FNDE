@@ -28,13 +28,11 @@
                 </li>
                 -->
                 <?php 
-                if($usuario['perfil'] == 'ADMINISTRADOR' OR $usuario['perfil'] == 'GESTOR'){
+                if($usuario['perfil'] == 'ADMINISTRADOR'){
                 ?>
-                <!--
                 <li class="nav-item">
-                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="etiquetas.php">Usuários</a>
+                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="qr_code_teste.php">QR Code Único</a>
                 </li>
-                -->
                 <?php } ?>
 
                 <?php 

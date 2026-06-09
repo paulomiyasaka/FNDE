@@ -14,8 +14,11 @@ class Agrupamento
         public readonly string $siglaSe,
         public readonly string $status,
         public readonly string $dataRegistro,
-        public readonly string $quantidadePaletes,
-        public readonly string $quantidadeEncomendas
+        public readonly string $horaRegistro,
+        public readonly string $dataHoraRegistro,
+        public readonly int $quantidadePaletes,
+        public readonly int $quantidadeEncomendas,
+        public readonly string $pesoEstimado
 
     ) {}
 
@@ -29,8 +32,11 @@ class Agrupamento
             siglaSe: $dados->sigla_se,
             status: $dados->status,
             dataRegistro: $dados->data_registro,
+            horaRegistro: $dados->hora_registro,
+            dataHoraRegistro: $dados->data_hora_registro,
             quantidadePaletes: $dados->quantidade_paletes,
-            quantidadeEncomendas: $dados->quantidade_encomendas
+            quantidadeEncomendas: $dados->quantidade_encomendas,
+            pesoEstimado: $dados->peso_previsto
 
         );
     }

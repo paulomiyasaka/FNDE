@@ -24,32 +24,30 @@ class ListarAgrupamento
     a.sigla_centralizadora,
     a.status,
     c.nome_centralizadora,
-    DATE_FORMAT(a.data_registro, '%d/%m/%Y - %H:%i') AS data_registro,
+    DATE_FORMAT(a.data_registro, '%d/%m/%Y') AS data_registro,
+    DATE_FORMAT(a.data_registro, '%H:%i') AS hora_registro,
+    DATE_FORMAT(a.data_registro, '%Y%m%d%H%i') AS data_hora_registro,
     
     -- Novas métricas solicitadas
     COUNT(pa.numero_palete) AS quantidade_paletes,
-    SUM(COALESCE(p.quantidade_encomendas, 0)) AS quantidade_encomendas
-    
+    SUM(COALESCE(p.quantidade_encomendas, 0)) AS quantidade_encomendas,
+    IF(p.peso_previsto > 0, 
+    FORMAT(SUM(COALESCE(p.peso_previsto, 0)), 3, 'pt_BR'),
+    '0') AS peso_previsto    
 FROM tb_agrupamento as a
-INNER JOIN tb_centralizadora as c
+LEFT JOIN tb_centralizadora as c
     ON a.sigla_centralizadora = c.sigla_centralizadora 
 
 -- Joins necessários para alcançar os dados dos paletes
-INNER JOIN tb_paletes_agrupados as pa 
+LEFT JOIN tb_paletes_agrupados as pa 
     ON a.id_agrupamento = pa.id_agrupamento
-INNER JOIN tb_paletes as p 
+LEFT JOIN tb_paletes as p 
     ON pa.numero_palete = p.numero_palete
 
 GROUP BY 
-    a.id_agrupamento,
-    a.matricula, 
-    a.sigla_se,
-    a.sigla_centralizadora,
-    a.status,
-    c.nome_centralizadora,
-    a.data_registro -- Usamos a coluna original no GROUP BY
+    data_hora_registro
 
-ORDER BY a.data_registro DESC;";
+ORDER BY data_hora_registro DESC;";
 		$dados = array();
     	$funcoesSQL = new FuncoesSQL();
 		$resultado = $funcoesSQL->fetchAllSQL($sql, $dados);

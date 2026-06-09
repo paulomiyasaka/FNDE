@@ -188,7 +188,7 @@ codigoPalete.addEventListener("keypress", e => {
 btnInserir.onclick = inserirPalete;
 
 async function inserirPalete() {
-    //if (limiteAtingido) return;
+    if (limiteAtingido) return;
 
     const codigo = codigoPalete.value;
     //if (codigo.length != 97) return;
