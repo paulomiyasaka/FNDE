@@ -1,7 +1,7 @@
 import { getPaletesAgrupados } from './getPaletesAgrupados.js';
 // ELEMENTOS
 const codigoPalete = document.getElementById("codigoPalete");
-let idAgrupamento = 0;
+let palete = 0;
 const btnInserir = document.getElementById("btnInserir");
 const btnImprimir = document.getElementById("btnImprimir");
 const btnImprimirQR = document.getElementById("btnImprimirQR");
@@ -63,9 +63,9 @@ async function inserir() {
   
         
 
-
+    palete = codigoPalete.value;
     preencherResultado(codigoPalete.value);
-    mostrarToast("Agrupamento localizado com sucesso", "sucesso");
+    mostrarToast("Palete inserido na lista", "sucesso");
 }
 
 function preencherResultado(dados) {
@@ -79,26 +79,26 @@ function preencherResultado(dados) {
     console.log(dados);
     //console.log(dados.paletes);
     rEstado.textContent = se;
-    rIdAgrupamento.textContent = "Sem Englobamento";
+    rIdAgrupamento.textContent = "QR Code Único - TESTE";
     
     rCentral.textContent = `${centralizadora} - ${se}`;
     rQtd.textContent = index;
 
     const pesoTotal = peso;
     rPeso.textContent = pesoTotal;
-    
+    /*
     tabelaPaletes.innerHTML = "";
     tabelaPaletes.innerHTML += `
         <tr>
             <td>${index++}</td>
             <td>${codigo}</td>
-            <td>${peso}</td>
         </tr>
     `;
+    */
     
     
-    btnImprimir.disabled = false;
-    btnImprimirQR.disabled = false;
+    btnImprimir.disabled = true;
+    btnImprimirQR.disabled = true;
     btnImprimirQRUnificado.disabled = false;
 /*
       //Percorre as partes e adiciona na tabela
@@ -150,15 +150,17 @@ function mostrarToast(msg, tipo) {
 // IMPRIMIR
 btnImprimir.onclick = () => {
     mostrarToast("Abrindo rótulo DataMatrix para impressão...", "sucesso");
-    window.open(`gerar_rotulo_agrupamento.php?id=${idAgrupamento}`, "_blank");
+    window.open(`gerar_rotulo.php?id=${palete}`, "_blank");
 };
 
 btnImprimirQR.onclick = () => {
     mostrarToast("Abrindo rótulo QR Code para impressão...", "sucesso");
-    window.open(`gerar_rotulo_qr_code.php?id=${idAgrupamento}`, "_blank");
+    window.open(`gerar_rotulo_qr_code.php?id=${palete}`, "_blank");
 };
 
 btnImprimirQRUnificado.onclick = () => {
     mostrarToast("Abrindo rótulo QR Code Unificado para impressão...", "sucesso");
-    window.open(`rotulo_qr_unico.php?id=${idAgrupamento}`, "_blank");
+    window.open(`rotulo_teste_qr_unico.php?p=${palete}`, "_blank");
 };
+
+
