@@ -98,7 +98,7 @@ function preencherResultado(dados) {
     
     
     btnImprimir.disabled = true;
-    btnImprimirQR.disabled = true;
+    btnImprimirQR.disabled = false;
     btnImprimirQRUnificado.disabled = false;
 /*
       //Percorre as partes e adiciona na tabela
@@ -155,7 +155,7 @@ btnImprimir.onclick = () => {
 
 btnImprimirQR.onclick = () => {
     mostrarToast("Abrindo rótulo QR Code para impressão...", "sucesso");
-    window.open(`gerar_rotulo_qr_code.php?id=${palete}`, "_blank");
+    window.open(`rotulo_teste_qr_unico_sem_borda.php?p=${palete}`, "_blank");
 };
 
 btnImprimirQRUnificado.onclick = () => {

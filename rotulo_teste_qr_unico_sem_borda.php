@@ -7,7 +7,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/header.php';
 
 use FNDE\Services\GerarRotuloAgrupamento;
-use FNDE\Services\GerarRotuloTesteUnicoRetratoQRCode;
+use FNDE\Services\GerarRotuloTesteUnicoRetratoQRCodeSemBorda;
 use FNDE\Services\GetAgrupamento;
 $palete = 0;
 
@@ -53,6 +53,6 @@ $paletes = $paletesAgrupados->retornarPaletes();
 //var_dump($dadosGerais);
 $paletes[] = &$palete;
 
-$gerador = new GerarRotuloTesteUnicoRetratoQRCode();
+$gerador = new GerarRotuloTesteUnicoRetratoQRCodeSemBorda();
 //var_dump($dadosGerais);
 $gerador->renderizar($dadosGerais, $paletes);

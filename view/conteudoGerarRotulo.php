@@ -49,11 +49,13 @@
 
                 <div class="row mb-3">
                     <div class="col-12 text-center">
+                        
                         <button id="btnImprimir" class="btn btn-success fs-5 mt-3" disabled>
                             Rótulo DataMatrix
                         </button>
+                        
                         <button id="btnImprimirQR" class="btn btn-primary fs-5 mt-3" disabled>
-                            Rótulo QR Code
+                            Rótulo QR Code Unificado Sem Borda
                         </button>
                         <button id="btnImprimirQRUnificado" class="btn btn-warning fs-5 mt-3" disabled>
                             Rótulo QR Code Unificado

@@ -252,19 +252,17 @@ class GerarRotuloUnicoRetratoQRCode {
             }
             
             .wrapper-qr {
-                width: 120mm;
-                height: 120mm;
+                width: 150mm;
+                height: 150mm;
                 margin: 0 auto;
-                border: 6px solid #000000;
-                border-radius: 5mm;
                 padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
             }
             .qr-unificado-img { 
                 padding-top: 3mm;
-                width: 110mm; 
-                height: 110mm; 
+                width: 130mm; 
+                height: 130mm; 
                 display: flex;
                 align-items: center;
                 margin: 0 auto;
@@ -285,7 +283,7 @@ class GerarRotuloUnicoRetratoQRCode {
             .tabela-paletes th { 
                 background-color: #EFEFEF; 
                 border: 1px solid #000; 
-                padding: 5px; 
+                padding: 0px; 
                 font-weight: bold; 
                 font-size: 12pt;
                 text-align: center;
@@ -301,3 +299,16 @@ class GerarRotuloUnicoRetratoQRCode {
         </style>";
     }
 }
+
+/*
+.wrapper-qr {
+                width: 120mm;
+                height: 120mm;
+                margin: 0 auto;
+                border: 6px solid #000000;
+                border-radius: 5mm;
+                padding: 1mm;
+                background-color: #FFFFFF;
+                display: block;
+            }
+*/

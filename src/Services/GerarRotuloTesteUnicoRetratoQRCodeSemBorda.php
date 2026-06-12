@@ -7,7 +7,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 
-class GerarRotuloTesteUnicoRetratoQRCode {
+class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
     private $mpdf;
     private $limitePaletes;
     private $pesoTara;
@@ -259,8 +259,6 @@ class GerarRotuloTesteUnicoRetratoQRCode {
                 width: 120mm;
                 height: 120mm;
                 margin: 0 auto;
-                border: 6px solid #000000;
-                border-radius: 5mm;
                 padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
@@ -305,3 +303,16 @@ class GerarRotuloTesteUnicoRetratoQRCode {
         </style>";
     }
 }
+
+/*
+.wrapper-qr {
+                width: 120mm;
+                height: 120mm;
+                margin: 0 auto;
+                border: 6px solid #000000;
+                border-radius: 5mm;
+                padding: 1mm;
+                background-color: #FFFFFF;
+                display: block;
+            }
+*/
