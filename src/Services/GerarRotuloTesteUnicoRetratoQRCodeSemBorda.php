@@ -38,8 +38,8 @@ class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
         $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium);
         
-        $qrCode->setSize(800);
-        $qrCode->setMargin(10);
+        $qrCode->setSize(1300);
+        $qrCode->setMargin(5);
 
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
@@ -243,8 +243,6 @@ class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
             .centro-container { 
                 width: 100%; 
                 text-align: center; 
-                margin-top: 3mm;
-                margin-bottom: 3mm; 
             }
             .instrucao-leitura { 
                 font-size: 13pt; 
@@ -256,8 +254,8 @@ class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
             }
             
             .wrapper-qr {
-                width: 120mm;
-                height: 120mm;
+                width: 150mm;
+                height: 150mm;
                 margin: 0 auto;
                 padding: 1mm;
                 background-color: #FFFFFF;
@@ -265,8 +263,8 @@ class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
             }
             .qr-unificado-img { 
                 padding-top: 3mm;
-                width: 110mm; 
-                height: 110mm; 
+                width: 140mm; 
+                height: 140mm; 
                 display: flex;
                 align-items: center;
                 margin: 0 auto;
@@ -314,5 +312,12 @@ class GerarRotuloTesteUnicoRetratoQRCodeSemBorda {
                 padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
+            }
+
+            .centro-container { 
+                width: 100%; 
+                text-align: center; 
+                margin-top: 3mm;
+                margin-bottom: 3mm; 
             }
 */

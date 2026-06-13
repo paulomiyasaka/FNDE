@@ -38,8 +38,8 @@ class GerarRotuloUnicoRetratoQRCode {
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
         $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium);
         
-        $qrCode->setSize(800);
-        $qrCode->setMargin(10);
+        $qrCode->setSize(900);
+        $qrCode->setMargin(5);
 
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
@@ -100,7 +100,7 @@ class GerarRotuloUnicoRetratoQRCode {
             
             $stringCompletaMaster .= '|'.$dadosGerais->qrCompilacao;
 
-
+            $contador = 1;
             // Concatena o restante dos paletes (97 caracteres cada)
             foreach ($paletesDaPagina as $palete) {
                 $stringCompletaMaster .= '|' . $palete->qrMaster;
@@ -110,13 +110,15 @@ class GerarRotuloUnicoRetratoQRCode {
             $linkQrCodeUnificado = $this->gerarQrCodeBase64($stringCompletaMaster);
 
             // --- 3. SEPARAÇÃO SIMÉTRICA PARA AS DUAS TABELAS VISUAIS ---
-            $pontoCorte = ceil($qtdPaletesNaPagina / 2);
+            $pontoCorte = ceil($qtdPaletesNaPagina / 3);
             $tabelaEsquerda = array_slice($paletesDaPagina, 0, $pontoCorte);
-            $tabelaDireita = array_slice($paletesDaPagina, $pontoCorte);
+            $tabelaCentral  = array_slice($paletesDaPagina, $pontoCorte, $pontoCorte);
+            $tabelaDireita  = array_slice($paletesDaPagina, 2 * $pontoCorte);
 
             // --- 4. MONTAGEM ESTRUTURAL DO HTML ---
             $html = $this->obterEstilosCSS();
             $html .= "
+            
             <div class='header-container'>
                 <table class='tabela-cabecalho'>
                     <tr>
@@ -131,7 +133,7 @@ class GerarRotuloUnicoRetratoQRCode {
                         <td class='saida-bold' style='text-align: center;'>{$dadosGerais->siglaSe}</td>
                     </tr>
                     <tr>
-                        <td class='label' style='width: 35%;'>Origem:</td>
+                        <td class='label' style='width: 35%;'>Centralizadora de Origem:</td>
                         <td class='label' style='width: 15%;'>Qtde Paletes (Folha/Total):</td>
                         <td class='label' style='width: 35%;'>Peso Kg (Folha/Total):</td>
                         <td class='label' style='width: 15%;'>Página:</td>
@@ -157,17 +159,19 @@ class GerarRotuloUnicoRetratoQRCode {
                     <tr>
                         <td style='width: 4%; border: none;'></td>
                         
-                        <td style='width: 44%; border: none; vertical-align: top;'>
+                        <td style='width: 30%; border: none; vertical-align: top;'>
                             <table class='tabela-paletes'>
                                 <thead>
                                     <tr>
-                                        <th style='width: 65%;'>Número do Palete</th>
-                                        <th style='width: 35%;'>Peso (kg)</th>
+                                        <th style='width: 20%;'>Item</th>
+                                        <th style='width: 50%;'>Palete</th>
+                                        <th style='width: 30%;'>Peso (kg)</th>
                                     </tr>
                                 </thead>
                                 <tbody>";
                                 foreach ($tabelaEsquerda as $p) {
                                     $html .= "<tr>
+                                        <td>".$contador++."</td>
                                         <td>{$p->numeroPalete}</td>
                                         <td style='text-align: center;'>".number_format($p->pesoPrevisto, 2, ',', '.')."</td>
                                     </tr>";
@@ -176,26 +180,55 @@ class GerarRotuloUnicoRetratoQRCode {
                             </table>
                         </td>
                         
-                        <td style='width: 4%; border: none;'></td>
+                        <td style='width: 1%; border: none;'></td>
                         
-                        <td style='width: 44%; border: none; vertical-align: top;'>
+                        <td style='width: 30%; border: none; vertical-align: top;'>
                             <table class='tabela-paletes'>
                                 <thead>
                                     <tr>
-                                        <th style='width: 65%;'>Número do Palete</th>
-                                        <th style='width: 35%;'>Peso (kg)</th>
+                                        <th style='width: 20%;'>Item</th>
+                                        <th style='width: 50%;'>Palete</th>
+                                        <th style='width: 30%;'>Peso (kg)</th>
                                     </tr>
                                 </thead>
                                 <tbody>";
-                                foreach ($tabelaDireita as $p) {
+                                foreach ($tabelaCentral as $p) {
                                     $html .= "<tr>
+                                        <td>".$contador++."</td>
                                         <td>{$p->numeroPalete}</td>
                                         <td style='text-align: center;'>".number_format($p->pesoPrevisto, 2, ',', '.')."</td>
                                     </tr>";
                                 }
                                 // Linha de compensação visual se o número de itens na página for ímpar
-                                if (count($tabelaDireita) < count($tabelaEsquerda)) {
-                                    $html .= "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+                                if (count($tabelaCentral) < count($tabelaEsquerda)) {
+                                    //$html .= "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
+                                }
+                                $html .= "</tbody>
+                            </table>
+                        </td>
+
+                        <td style='width: 1%; border: none;'></td>
+                        
+                        <td style='width: 30%; border: none; vertical-align: top;'>
+                            <table class='tabela-paletes'>
+                                <thead>
+                                    <tr>
+                                        <th style='width: 20%;'>Item</th>
+                                        <th style='width: 50%;'>Palete</th>
+                                        <th style='width: 30%;'>Peso (kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>";
+                                foreach ($tabelaDireita as $p) {
+                                    $html .= "<tr>
+                                        <td>".$contador++."</td>
+                                        <td>{$p->numeroPalete}</td>
+                                        <td style='text-align: center;'>".number_format($p->pesoPrevisto, 2, ',', '.')."</td>
+                                    </tr>";
+                                }
+                                // Linha de compensação visual se o número de itens na página for ímpar
+                                if (count($tabelaDireita) < count($tabelaCentral)) {
+                                    //$html .= "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
                                 }
                                 $html .= "</tbody>
                             </table>
@@ -228,50 +261,47 @@ class GerarRotuloUnicoRetratoQRCode {
             @page { margin: 10mm; }
             body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; }
             
-            .header-container { width: 100%; margin-bottom: 5mm; }
+            .header-container { width: 100%; margin-bottom: 2mm;}
             .tabela-cabecalho { width: 100%; border-collapse: collapse; table-layout: fixed; }
             .tabela-cabecalho td { border: 1px solid black; padding: 4px 6px; vertical-align: middle; }
             .tabela-cabecalho th { border: 1px solid red; padding: 4px 6px; vertical-align: top; }
             .titulo-cabecalho { background-color: #EFEFEF; font-weight: bold; text-align: center; font-size: 15pt; padding: 6px !important; text-transform: uppercase; }
             .label { font-size: 10pt; color: #333; font-weight: bold; }
-            .saida-bold { font-size: 14pt; font-weight: bold; }
+            .saida-bold { font-size: 12pt; font-weight: bold; }
 
             .centro-container { 
                 width: 100%; 
                 text-align: center; 
-                margin-top: 3mm;
-                margin-bottom: 3mm; 
+                margin-top: 5mm;
             }
             .instrucao-leitura { 
-                font-size: 13pt; 
-                font-weight: bold; 
-                margin-bottom: 4mm; 
-                padding-bottom: 2mm;
+                font-size: 12pt; 
+                font-weight: bold;                 
+                padding: 2mm;
                 text-align: center; 
                 width: 100%;
             }
             
             .wrapper-qr {
-                width: 150mm;
-                height: 150mm;
+                width: 180mm;
+                height: 180mm;
                 margin: 0 auto;
-                padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
             }
             .qr-unificado-img { 
-                padding-top: 3mm;
-                width: 130mm; 
-                height: 130mm; 
                 display: flex;
                 align-items: center;
                 margin: 0 auto;
+                max-width: 100%;
+                max-height: 155mm; /* Limita a altura para o QR não empurrar as tabelas */
+                object-fit: contain;
             }
 
             .footer-container { 
                 width: 100%; 
                 position: absolute;
-                margin-bottom: 10mm;
+                bottom: 10mm;
                 left: 0;
             }
             
@@ -310,5 +340,13 @@ class GerarRotuloUnicoRetratoQRCode {
                 padding: 1mm;
                 background-color: #FFFFFF;
                 display: block;
+            }
+                .qr-unificado-img { 
+                padding-top: 3mm;
+                width: 140mm; 
+                height: 140mm; 
+                display: flex;
+                align-items: center;
+                margin: 0 auto;
             }
 */
