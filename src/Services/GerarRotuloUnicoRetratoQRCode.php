@@ -22,7 +22,7 @@ class GerarRotuloUnicoRetratoQRCode {
             'margin_top' => 10,
             'margin_bottom' => 10
         ]);
-        $this->limitePaletes = 23;
+        $this->limitePaletes = 24;
         $this->pesoTara = 17.0;
     }
 
@@ -36,10 +36,10 @@ class GerarRotuloUnicoRetratoQRCode {
         
         // Nível de correção Low (L) garante menor densidade de blocos para strings longas,
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
-        $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Medium);
+        $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Low);
         
-        $qrCode->setSize(900);
-        $qrCode->setMargin(5);
+        $qrCode->setSize(680);
+        $qrCode->setMargin(3);
 
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
