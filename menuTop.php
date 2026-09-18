@@ -28,7 +28,7 @@
                 if($usuario['perfil'] == 'ADMINISTRADOR'){
                 ?>
                 <li class="nav-item">
-                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="pesagem.php">Pesagem</a>                  
+                  <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="agendamento.php">Agendamentos</a>                  
                 </li>
                 <li class="nav-item">
                   <a class="fw-bold fs-5 nav-link m-3 text-dark-emphasis btn btn-outline-warning" href="qr_code_teste.php">Teste QR Code Único</a>
