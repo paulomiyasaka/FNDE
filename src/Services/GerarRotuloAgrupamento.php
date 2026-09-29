@@ -124,7 +124,7 @@ class GerarRotuloAgrupamento {
         }
 
         //$this->mpdf->Output('Relatorio_Agrupamento_DataMatrix.pdf', 'I');
-        $this->mpdf->Output('Rótulo Englogado ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
+        $this->mpdf->Output('Rótulo Englobado DataMatrix ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
     }
 
     private function getCSS() {

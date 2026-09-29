@@ -121,7 +121,7 @@ class GerarRotuloAgrupamentoQRCode {
         }
 
         //$this->mpdf->Output('Relatorio_Agrupamento.pdf', 'I');
-        $this->mpdf->Output('Rótulo Englogado ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
+        $this->mpdf->Output('Rótulo Englobado QRCode ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
         
 
     }

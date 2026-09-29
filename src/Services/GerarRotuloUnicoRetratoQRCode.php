@@ -22,7 +22,7 @@ class GerarRotuloUnicoRetratoQRCode {
             'margin_top' => 10,
             'margin_bottom' => 10
         ]);
-        $this->limitePaletes = 24;
+        $this->limitePaletes = 21;
         $this->pesoTara = 17.0;
     }
 
@@ -38,7 +38,7 @@ class GerarRotuloUnicoRetratoQRCode {
         // facilitando a leitura de alta velocidade pelo coletor no galpão.
         $qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::Low);
         
-        $qrCode->setSize(680);
+        $qrCode->setSize(650);
         $qrCode->setMargin(3);
 
         $writer = new PngWriter();
@@ -249,7 +249,7 @@ class GerarRotuloUnicoRetratoQRCode {
         }
 
         // Envia o PDF compilado direto para o navegador do operador
-        $this->mpdf->Output('Rótulo Englogado ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
+        $this->mpdf->Output('Rótulo Englobado ID'.$dadosGerais->idAgrupamento.' '.$dadosGerais->siglaSe.' '.$dadosGerais->nomeCentralizadora.'.pdf', 'I');
     }
 
     /**
