@@ -116,9 +116,15 @@
                     pesoTiragem: parseToNumber(columns[8]),
                     subtotal: parseToNumber(columns[9]),
                     dataRecebimento: columns[10]?.trim() || "",
-                    valorFaturamento: parseToNumber(columns[11]),
-                    arquivoNf: columns[12]?.trim() || "",
-                    linkNf: columns[13]?.trim() || ""
+                    dataAtual: columns[11]?.trim() || "",
+                    diasArmazenamento: parseInt(columns[12]) || 0,
+                    meses: parseToNumber(columns[13]) || 0,
+                    qtdPaletes: parseInt(columns[14]) || 0,
+                    qtdPaletesPorMilheiro: parseInt(columns[15]) || 0,
+                    valorDiaArmazenamento: parseToNumber(columns[16]),
+                    valorFaturamento: parseToNumber(columns[17]) || 0,
+                    arquivoNf: columns[18]?.trim() || "",
+                    linkNf: columns[19]?.trim() || ""
                 };
 
                 data.push(item);
