@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importador TXT para JSON - Faturamento PNLD</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        #jsonOutput {
+            max-height: 500px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold mb-3">
+                            <i class="bi bi-filetype-json text-primary me-2"></i>
+                            Conversor e Importador de TXT (TSV) para JSON
+                        </h4>
+                        <p class="text-muted small">
+                            Selecione o arquivo de texto tabulado (`.txt` ou `.tsv`). O script irá processar os dados, converter valores monetários e numéricos, e gerar o JSON completo.
+                        </p>
+
+                        <!-- Input de Arquivo -->
+                        <div class="mb-3">
+                            <label for="txtFileInput" class="form-label fw-semibold">Selecione o arquivo TXT:</label>
+                            <input class="form-control" type="file" id="txtFileInput" accept=".txt,.tsv">
+                        </div>
+
+                        <!-- Info do Arquivo Processado -->
+                        <div id="fileStatus" class="alert alert-info d-none d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <span id="statusMessage">Aguardando arquivo...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card de Exibição do JSON -->
+                <div class="card shadow-sm border-0 d-none" id="jsonResultCard">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-secondary">
+                            <i class="bi bi-code-slash me-1"></i> JSON Gerado
+                        </span>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm me-2" id="btnCopy">
+                                <i class="bi bi-clipboard me-1"></i> Copiar JSON
+                            </button>
+                            <button class="btn btn-primary btn-sm" id="btnDownload">
+                                <i class="bi bi-download me-1"></i> Download .json
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <pre id="jsonOutput" class="p-3 mb-0 overflow-auto"></pre>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let generatedData = null;
+
+        /**
+         * Limpa e converte strings numéricas/moeda (ex: "R$ 30.477,60" ou "4162,400") para float puro
+         */
+        function parseToNumber(valueStr) {
+            if (!valueStr) return 0;
+            const cleanStr = valueStr
+                .replace("R$", "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+                .trim();
+            return parseFloat(cleanStr) || 0;
+        }
+
+        /**
+         * Converte o conteúdo TXT (separado por tabulação) em Array de Objetos JavaScript
+         */
+        function convertTxtToJson(txtContent) {
+            const lines = txtContent.trim().split(/\r?\n/);
+            if (lines.length < 2) return [];
+
+            // Lê os cabeçalhos da primeira linha
+            const headers = lines[0].split("\t").map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const columns = lines[i].split("\t");
+                
+                const item = {
+                    chave: columns[0]?.trim() || "",
+                    contem: parseInt(columns[1]) || 0,
+                    cnpj: columns[2]?.trim() || "",
+                    fornecedor: columns[3]?.trim() || "",
+                    sku: columns[4]?.trim() || "",
+                    descricao: columns[5]?.trim() || "",
+                    acervo: parseInt(columns[6]) || 0,
+                    tiragem: parseInt(columns[7]) || 0,
+                    pesoTiragem: parseToNumber(columns[8]),
+                    subtotal: parseToNumber(columns[9]),
+                    dataRecebimento: columns[10]?.trim() || "",
+                    valorFaturamento: parseToNumber(columns[11]),
+                    arquivoNf: columns[12]?.trim() || "",
+                    linkNf: columns[13]?.trim() || ""
+                };
+
+                data.push(item);
+            }
+
+            return data;
+        }
+
+        // Listener para leitura do arquivo
+        document.getElementById('txtFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                try {
+                    const textContent = event.target.result;
+                    generatedData = convertTxtToJson(textContent);
+
+                    // Atualiza mensagens de interface
+                    const statusCard = document.getElementById('fileStatus');
+                    const statusMessage = document.getElementById('statusMessage');
+                    const jsonResultCard = document.getElementById('jsonResultCard');
+                    const jsonOutput = document.getElementById('jsonOutput');
+
+                    statusCard.classList.remove('d-none');
+                    statusMessage.innerHTML = `Arquivo <strong>${file.name}</strong> processado com sucesso! Total de registros: <strong>${generatedData.length}</strong>.`;
+
+                    // Exibe o JSON formatado (indentado com 2 espaços)
+                    jsonOutput.textContent = JSON.stringify(generatedData, null, 2);
+                    jsonResultCard.classList.remove('d-none');
+
+                } catch (err) {
+                    alert('Erro ao processar o arquivo TXT: ' + err.message);
+                }
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        });
+
+        // Botão de Copiar JSON
+        document.getElementById('btnCopy').addEventListener('click', function() {
+            if (!generatedData) return;
+            const jsonText = JSON.stringify(generatedData, null, 2);
+            navigator.clipboard.writeText(jsonText).then(() => {
+                alert('JSON copiado para a área de transferência!');
+            });
+        });
+
+        // Botão de Download do arquivo JSON
+        document.getElementById('btnDownload').addEventListener('click', function() {
+            if (!generatedData) return;
+            const jsonText = JSON.stringify(generatedData, null, 2);
+            const blob = new Blob([jsonText], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'faturamento_dados.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
