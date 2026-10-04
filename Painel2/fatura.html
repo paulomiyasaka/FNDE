@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faturamento - Consulta TXT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+    .table-container {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .badge-status {
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container table-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Consulta de Faturamento</h2>
+      <button class="btn btn-primary" onclick="carregarDadosTxt()">Atualizar Dados</button>
+    </div>
+
+    <!-- Status de carregamento -->
+    <div id="statusMensagem" class="alert alert-info" role="alert">
+      Carregando dados do arquivo <code>faturamento.txt</code>...
+    </div>
+
+    <!-- Tabela de Faturamento -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle" id="tabelaFaturamento">
+        <thead class="table-dark">
+          <tr id="cabecalhoTabela">
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>CNPJ</th>
+            <th>Valor (R$)</th>
+            <th>Data Emissão</th>
+            <th>Arquivo NF</th>
+            <th>Link NF</th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabela">
+          <!-- Linhas geradas via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Configurações
+    const CAMINHO_ARQUIVO_TXT = './faturamento.txt';
+    const PASTA_SAIDA_PDF = 'saida/';
+    const DELIMITADOR = '\t'; // Separador por Tabulação
+
+    // Executa o carregamento ao abrir a página
+    document.addEventListener('DOMContentLoaded', carregarDadosTxt);
+
+    async function carregarDadosTxt() {
+      const statusDiv = document.getElementById('statusMensagem');
+      const corpoTabela = document.getElementById('corpoTabela');
+
+      try {
+        statusDiv.className = 'alert alert-info';
+        statusDiv.textContent = 'Carregando dados do arquivo...';
+
+        // Busca o arquivo TXT no servidor local
+        const response = await fetch(CAMINHO_ARQUIVO_TXT, { cache: 'no-store' });
+        
+        if (!response.ok) {
+          throw new Error(`Não foi possível carregar o arquivo (Status: ${response.status})`);
+        }
+
+        const texto = await response.text();
+        const dados = processarTxt(texto);
+
+        if (dados.length === 0) {
+          statusDiv.className = 'alert alert-warning';
+          statusDiv.textContent = 'Nenhum registro encontrado no arquivo TXT.';
+          corpoTabela.innerHTML = '';
+          return;
+        }
+
+        renderizarTabela(dados);
+        statusDiv.className = 'alert alert-success';
+        statusDiv.textContent = `Dados carregados com sucesso! Total de registros: ${dados.length}`;
+
+      } catch (error) {
+        console.error('Erro ao ler TXT:', error);
+        statusDiv.className = 'alert alert-danger';
+        statusDiv.textContent = `Erro ao carregar o arquivo TXT: ${error.message}. Certifique-se de estar rodando em um servidor web (HTTP/HTTPS/Localhost).`;
+      }
+    }
+
+    // Processa a string TXT e converte em array de objetos
+    function processarTxt(conteudo) {
+      const linhas = conteudo.split(/\r?\n/).filter(linha => linha.trim() !== '');
+      if (linhas.length <= 1) return []; // Retorna vazio se só tiver o cabeçalho ou estiver em branco
+
+      // A primeira linha contém os nomes das colunas
+      const cabeçalhos = linhas[0].split(DELIMITADOR).map(col => col.trim());
+      const registros = [];
+
+      for (let i = 1; i < linhas.length; i++) {
+        const colunas = linhas[i].split(DELIMITADOR);
+        const item = {};
+
+        cabeçalhos.forEach((nomeColuna, index) => {
+          item[nomeColuna] = colunas[index] ? colunas[index].trim() : '';
+        });
+
+        registros.push(item);
+      }
+
+      return registros;
+    }
+
+    // Monta o HTML da tabela dinamicamente
+    function renderizarTabela(dados) {
+      const corpoTabela = document.getElementById('corpoTabela');
+      corpoTabela.innerHTML = '';
+
+      dados.forEach(row => {
+        const tr = document.createElement('tr');
+
+        // Mapeamento dos campos do TXT
+        const id = row['id'] || '-';
+        const cliente = row['cliente'] || '-';
+        const cnpj = row['cnpj'] || '-';
+        const valor = row['valor'] || '0,00';
+        const dataEmissao = row['dataEmissao'] || '-';
+        const arquivoNF = row['arquivoNF'] || '';
+        const linkTexto = row['linkNF'] || 'Visualizar PDF';
+
+        // Lógica para montar a coluna do link do PDF
+        let celulaLinkHtml = '';
+        if (arquivoNF) {
+          const caminhoCompletoPdf = PASTA_SAIDA_PDF + arquivoNF;
+          celulaLinkHtml = `<a href="${caminhoCompletoPdf}" target="_blank" class="btn btn-sm btn-outline-primary">${linkTexto}</a>`;
+        } else {
+          celulaLinkHtml = `<span class="badge bg-secondary badge-status">Sem NF</span>`;
+        }
+
+        tr.innerHTML = `
+          <td>${id}</td>
+          <td><strong>${cliente}</strong></td>
+          <td>${cnpj}</td>
+          <td>R$ ${valor}</td>
+          <td>${dataEmissao}</td>
+          <td><code>${arquivoNF || 'N/A'}</code></td>
+          <td>${celulaLinkHtml}</td>
+        `;
+
+        corpoTabela.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>

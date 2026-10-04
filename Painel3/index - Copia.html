@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Faturamento e Recebimento</title>
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <meta name="author" content="Paulo Rodrigues Miyasaka - 8.136.382-6" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                Gestão de Faturamento - PNLD / Editoras
+            </span>
+            <a class="btn btn-lg mb-0 h1 text-white" href="gerar_json.html">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                Gerar Json
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <!-- Cards de Resumo Executivo -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-primary">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Total Faturado</h6>
+                        <h3 class="fw-bold text-primary mb-0" id="cardTotalFaturamento">R$ 0,00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-success">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Total de Exemplares (Tiragem)</h6>
+                        <h3 class="fw-bold text-success mb-0" id="cardTotalTiragem">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-info">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Peso Total (kg)</h6>
+                        <h3 class="fw-bold text-info mb-0" id="cardTotalPeso">0,00 kg</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-warning">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Total de Registros</h6>
+                        <h3 class="fw-bold text-warning mb-0" id="cardTotalRegistros">0</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- Cards de Resumo Executivo -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-primary">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Total de Paletes Armazenados</h6>
+                        <h3 class="fw-bold text-primary mb-0" id="cardTotalPaletes">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-success">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Média de dias (armazenamento)</h6>
+                        <h3 class="fw-bold text-success mb-0" id="cardTotalDias">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-info">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Valor armazenagem palete/dia:</h6>
+                        <h3 class="fw-bold text-info mb-0" id="cardTotalPeso">R$ 2,55</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm border-start border-4 border-warning">
+                    <div class="card-body">
+                        <h6 class="text-muted fw-normal mb-1">Faturado até:</h6>
+                        <h3 class="fw-bold text-warning mb-0" id="cardTotalRegistros">10/10/2026</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Controles e Filtros -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Buscar por Fornecedor, SKU, Título do Livro ou Chave...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterFornecedor" class="form-select">
+                            <option value="">Todos os Fornecedores</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="badge bg-secondary p-2" id="recordCounter">Mostrando 0 registros</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Dados -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-center">Registro</th>
+                                <th>Fornecedor / CNPJ</th>
+                                <th class="text-center">SKU</th>
+                                <th>Descrição / Livro</th>
+                                <th class="text-center">Acervo</th>
+                                <th class="text-center">Tiragem</th>
+                                <th class="text-center">Quant. Palete (Milheiro)</th>
+                                <th class="text-center">Dias Armazenados</th>
+                                <th class="text-center">Data Rec.</th>
+                                <th class="text-center">Valor Faturado</th>
+                                <th class="text-center">PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Aplicação JS Separada -->
+    <script src="app.js"></script>
+</body>
+</html>
