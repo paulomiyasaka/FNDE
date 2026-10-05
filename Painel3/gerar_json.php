@@ -25,7 +25,7 @@ try {
     }
 
     // Redireciona de volta para o painel com status de sucesso
-    header('Location: painel_2.html?status=success');
+    header('Location: painel.php?status=success');
     exit;
 
 } catch (Exception $e) {

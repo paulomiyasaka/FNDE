@@ -5,17 +5,11 @@ namespace FNDE\Painel;
 class HtmlExporter
 {
     /**
-     * Gera o arquivo HTML standalone offline com colunas enxutas,
-     * links diretos para modal de detalhes no Fornecedor e Descrição,
-     * sem barra de rolagem vertical na tabela, formatação PT-BR nos números,
-     * botão de abertura da NF na ficha e data/hora de geração no fuso correto (Brasília).
+     * Gera o arquivo HTML standalone offline com correção matemática contábil
+     * e renderização completa da tabela e modais.
      */
     public static function generateStandaloneHtml(array $payloadData): string
     {
-        // Define o fuso horário padrão para o horário de Brasília (UTC-3)
-        date_default_timezone_set('America/Sao_Paulo');
-        $dataGeracao = date('d/m/Y \à\s H:i');
-
         $jsonString = json_encode($payloadData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return <<<HTML
@@ -30,11 +24,12 @@ class HtmlExporter
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        .table-responsive { max-height: 65vh; overflow-y: auto; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { background-color: #343a40 !important; }
-        .detail-row-header { background-color: #f8f9fa; font-weight: 600; color: #495057; width: 40%; }
-        .link-modal-detail { color: #0d6efd; text-decoration: none; border-bottom: 1px dashed #0d6efd; cursor: pointer; font-weight: 500; }
-        .link-modal-detail:hover { color: #0a58ca; border-bottom-style: solid; }
+        .detail-row-header { background-color: #f8f9fa; font-weight: 600; color: #495057; width: 35%; }
+        .link-modal-detail { color: inherit; text-decoration: none; border-bottom: 1px dashed #0d6efd; cursor: pointer; }
+        .link-modal-detail:hover { color: #0d6efd; border-bottom-style: solid; }
     </style>
 </head>
 <body class="bg-light">
@@ -46,9 +41,7 @@ class HtmlExporter
                 <i class="bi bi-file-earmark-spreadsheet me-2"></i>
                 Gestão de Faturamento - PNLD / Editoras
             </span>
-            <span class="badge bg-light text-primary fs-7">
-                <i class="bi bi-clock-history me-1"></i>Gerado em: {$dataGeracao}
-            </span>
+            <span class="badge bg-light text-primary fs-7">Versão Offline / Exportada</span>
         </div>
     </nav>
 
@@ -147,7 +140,7 @@ class HtmlExporter
             </div>
         </div>
 
-        <!-- Tabela Dinâmica sem Barra de Rolagem Vertical -->
+        <!-- Tabela Dinâmica -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -165,7 +158,7 @@ class HtmlExporter
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content shadow">
                 <div class="modal-header bg-dark text-white py-2">
-                    <h5 class="modal-title fs-6" id="modalDetailsLabel"><i class="bi bi-card-checklist me-2"></i> Ficha Completa do Registro</h5>
+                    <h5 class="modal-title fs-6" id="modalDetailsLabel"><i class="bi bi-file-earmark-text me-2"></i> Detalhes do Registro</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-3">
@@ -204,18 +197,6 @@ class HtmlExporter
     <script>
         const DATASET = {$jsonString};
 
-        const VISIBLE_KEYS = [
-            "nome_do_fornecedor", "fornecedor",
-            "sku",
-            "descricao_item", "descricao", "item",
-            "acervo",
-            "data_recebimento", "dataRecebimento",
-            "posicoes_porta_palete", "qtdPaletesPorMilheiro",
-            "dias_armazenamento", "diasArmazenamento",
-            "valor_faturamento", "subtotal",
-            "link_nf"
-        ];
-
         let currentFilteredData = [];
         let bsModalNf = null;
         let bsModalDetails = null;
@@ -233,6 +214,10 @@ class HtmlExporter
             document.getElementById("filterFornecedor").addEventListener("change", applyFilters);
         });
 
+        /**
+         * PARSER MATEMÁTICO
+         * Garante que "2,55" vira 2.55 e "30.600,00" / "30600.00" viram 30600.00
+         */
         function parseCurrencyNumber(val) {
             if (val === null || val === undefined) return 0;
             if (typeof val === 'number') return val;
@@ -241,6 +226,7 @@ class HtmlExporter
             if (!str) return 0;
 
             str = str.replace(/[^\d.,-]/g, '');
+
             const lastDot = str.lastIndexOf('.');
             const lastComma = str.lastIndexOf(',');
 
@@ -250,7 +236,8 @@ class HtmlExporter
                 } else {
                     str = str.replace(/,/g, '');
                 }
-            } else if (lastComma !== -1) {
+            } 
+            else if (lastComma !== -1) {
                 str = str.replace(',', '.');
             }
 
@@ -268,15 +255,20 @@ class HtmlExporter
             return num.toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
 
+        /**
+         * PARSER DE DATA - Recebe "m/d/Y" ou "m/d/Y H:i:s" do dataset original e converte para Date objeto JS.
+         * parts[0] = Mês, parts[1] = Dia, parts[2] = Ano
+         */
         function parseDate(dateStr) {
             if (!dateStr || typeof dateStr !== "string") return null;
-            const cleanStr = dateStr.trim().split(" ")[0];
+            const cleanStr = dateStr.trim().split(" ")[0]; // remove horário se houver
             const parts = cleanStr.split("/");
             
             if (parts.length === 3) {
-                const month = parseInt(parts[0], 10) - 1;
+                const month = parseInt(parts[0], 10) - 1; // JS meses são 0-11
                 const day = parseInt(parts[1], 10);
                 const year = parseInt(parts[2], 10);
+                
                 if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
                     return new Date(year, month, day);
                 }
@@ -284,28 +276,34 @@ class HtmlExporter
             return null;
         }
 
+        /**
+         * CONVERTE QUALQUER STRING DE DATA "m/d/Y" OU "YYYY-MM-DD" PARA O PADRÃO BRASILEIRO "d/m/Y"
+         */
         function formatDateToBR(dateStr) {
             if (!dateStr || typeof dateStr !== "string") return dateStr || "";
             const str = dateStr.trim();
+
             if (str.toLowerCase() === "não recebido" || str === "-") return str;
 
+            // Pega apenas a parte da data caso exista timestamp (ex: "m/d/Y H:i:s")
             const datePart = str.split(" ")[0];
+
+            // Trata formato m/d/Y
             const parts = datePart.split("/");
             if (parts.length === 3) {
-                return `\${parts[1].padStart(2, "0")}/\${parts[0].padStart(2, "0")}/\${parts[2]}`;
+                const month = parts[0].padStart(2, "0");
+                const day = parts[1].padStart(2, "0");
+                const year = parts[2];
+                return `\${day}/\${month}/\${year}`;
             }
 
+            // Trata formato ISO YYYY-MM-DD
             const isoParts = datePart.split("-");
             if (isoParts.length === 3) {
                 return `\${isoParts[2].padStart(2, "0")}/\${isoParts[1].padStart(2, "0")}/\${isoParts[0]}`;
             }
 
             return str;
-        }
-
-        function getVisibleColumns(colunas) {
-            if (!colunas) return [];
-            return colunas.filter(col => VISIBLE_KEYS.includes(col.chave));
         }
 
         function updateCards(dados) {
@@ -326,8 +324,12 @@ class HtmlExporter
 
                 if (!isNaoRecebido) {
                     titulosRecebidos++;
-                    totalFaturamento += parseCurrencyNumber(item.valor_faturamento || item.subtotal || item.valorFaturamento || 0);
-                    totalTiragem += parseCurrencyNumber(item.tiragem || 0);
+                    const valFat = parseCurrencyNumber(item.valor_faturamento || item.subtotal || item.valorFaturamento || 0);
+                    totalFaturamento += valFat;
+
+                    const tir = parseCurrencyNumber(item.tiragem || 0);
+                    totalTiragem += tir;
+
                     somaDiasArmazenamento += parseCurrencyNumber(item.dias_armazenamento || item.diasArmazenamento || 0);
                 } else {
                     titulosNaoRecebidos++;
@@ -366,12 +368,10 @@ class HtmlExporter
 
         function renderHeader(colunas) {
             const thead = document.getElementById("tableHead");
-            if (!thead) return;
-            
-            const visCols = getVisibleColumns(colunas);
+            if (!thead || !colunas) return;
             let html = "<tr>";
 
-            visCols.forEach(col => {
+            colunas.forEach(col => {
                 let alignClass = "text-start";
                 if (col.tipo === "numero" || col.tipo === "currency" || col.tipo === "dias") alignClass = "text-end";
                 if (col.tipo === "status_data" || col.tipo === "link_nf" || col.tipo === "badge" || col.tipo === "data") alignClass = "text-center";
@@ -392,41 +392,42 @@ class HtmlExporter
             if (!tbody) return;
             tbody.innerHTML = "";
 
-            const visCols = getVisibleColumns(colunas);
-
             if (!dados || dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="\${visCols.length}" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhum registro encontrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="\${colunas ? colunas.length : 10}" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhum registro encontrado.</td></tr>`;
                 return;
             }
 
             dados.forEach((row, idx) => {
                 const tr = document.createElement("tr");
 
-                visCols.forEach(col => {
+                colunas.forEach(col => {
                     const td = document.createElement("td");
                     const rawVal = row[col.chave];
-                    const ch = col.chave;
 
-                    const isModalTriggerKey = [
-                        "nome_do_fornecedor", "fornecedor", 
-                        "descricao_item", "descricao", "item"
-                    ].includes(ch);
-
-                    if (col.tipo === "link_nf" || ch === "link_nf") {
+                    if (col.tipo === "link_nf" || col.chave === "link_nf") {
                         td.className = "text-center";
                         const url = row.link_nf || row.pdf || "";
                         if (url && url.trim() !== "") {
-                            td.innerHTML = `<button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openNfModal('\${url}')"><i class="bi bi-file-earmark-pdf me-1"></i>NF</button>`;
+                            td.innerHTML = `<button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="openNfModal('\${url}')"><i class="bi bi-file-earmark-pdf me-1"></i>Ver NF</button>`;
                         } else {
                             td.innerHTML = `<span class="badge bg-light text-muted border">Sem NF</span>`;
                         }
-                    } else if (isModalTriggerKey) {
-                        const labelText = rawVal !== undefined && rawVal !== null && rawVal !== "" ? rawVal : "-";
-                        td.innerHTML = `<span class="link-modal-detail" title="Clique para ver a ficha completa" onclick="openDetailsModal(\${idx})">\${labelText}</span>`;
                     } else if (col.tipo === "currency") {
-                        td.className = "text-end fw-semibold " + (ch === "valor_faturamento" && (!rawVal || rawVal === "0") ? "text-danger" : "text-dark");
-                        td.textContent = formatCurrency(rawVal);
-                    } else if (col.tipo === "numero" || col.tipo === "dias") {
+
+                        if (col.chave === "valor_faturamento") {
+                            if (!rawVal || rawVal !== "0") {
+                                td.className = "text-end fw-semibold text-success";
+                                td.textContent = formatCurrency(rawVal);
+                            } else {
+                                td.className = "text-end fw-semibold text-danger";
+                                td.textContent = formatCurrency(rawVal);
+                            }
+                        } else {
+                            td.className = "text-end fw-semibold text-dark";
+                            td.textContent = formatCurrency(rawVal);
+                        }
+
+                    } else if (col.tipo === "numero") {
                         td.className = "text-end";
                         td.textContent = formatNumber(rawVal);
                     } else if (col.tipo === "status_data") {
@@ -434,12 +435,14 @@ class HtmlExporter
                         if (!rawVal || rawVal === "Não Recebido") {
                             td.innerHTML = `<span class="badge bg-danger-subtle text-danger border border-danger">Não Recebido</span>`;
                         } else {
-                            td.innerHTML = `<span class="badge bg-success-subtle text-success border border-success">\${formatDateToBR(rawVal)}</span>`;
+                            const dataFormatada = formatDateToBR(rawVal);
+                            td.innerHTML = `<span class="badge bg-success-subtle text-success border border-success">\${dataFormatada}</span>`;
                         }
                     } else if (col.tipo === "data") {
                         td.className = "text-center";
                         td.textContent = formatDateToBR(rawVal);
                     } else {
+                        // Aplica verificação preventiva: se a string parecer uma data no formato m/d/Y, formata
                         if (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim())) {
                             td.textContent = formatDateToBR(rawVal);
                         } else {
@@ -500,6 +503,7 @@ class HtmlExporter
                 let valA = a[sortKey] ?? '';
                 let valB = b[sortKey] ?? '';
 
+                // Se for campo de data, ordena pelo objeto Date
                 const dateA = parseDate(valA);
                 const dateB = parseDate(valB);
                 if (dateA && dateB) {
@@ -514,66 +518,6 @@ class HtmlExporter
                 return sortAsc ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
             });
             renderTable(DATASET.colunas, currentFilteredData);
-        }
-
-        function openDetailsModal(index) {
-            const item = currentFilteredData[index];
-            if (!item) return;
-
-            const tbody = document.getElementById("modalDetailsBody");
-            tbody.innerHTML = "";
-
-            const colConfigMap = {};
-            if (DATASET.colunas) {
-                DATASET.colunas.forEach(c => colConfigMap[c.chave] = c);
-            }
-
-            const keys = Object.keys(item);
-            if (!keys.includes("link_nf") && item.pdf) {
-                keys.push("link_nf");
-            }
-
-            keys.forEach(key => {
-                if (key === "pdf") return;
-
-                const tr = document.createElement("tr");
-                const colDef = colConfigMap[key];
-                const label = colDef ? colDef.rotulo : (key === "link_nf" ? "Nota Fiscal" : key.replace(/_/g, ' ').toUpperCase());
-                const rawVal = item[key] || (key === "link_nf" ? item.pdf : null);
-
-                let displayVal = "-";
-
-                if (key === "link_nf") {
-                    const url = rawVal || item.pdf || "";
-                    if (url && String(url).trim() !== "") {
-                        displayVal = `<button class="btn btn-sm btn-primary py-1 px-3" onclick="openNfModal('\${url}')"><i class="bi bi-file-earmark-pdf me-1"></i> Visualizar Nota Fiscal</button>`;
-                    } else {
-                        displayVal = `<span class="badge bg-light text-muted border">Sem NF anexada</span>`;
-                    }
-                } else if (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") {
-                    const tipo = colDef ? colDef.tipo : null;
-
-                    if (tipo === "currency" || key.includes("valor") || key.includes("subtotal") || key.includes("diaria")) {
-                        displayVal = formatCurrency(rawVal);
-                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("dias")) {
-                        displayVal = formatNumber(rawVal);
-                    } else if (tipo === "data" || tipo === "status_data" || (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim()))) {
-                        displayVal = formatDateToBR(rawVal);
-                    } else if (typeof rawVal === "number") {
-                        displayVal = Number.isInteger(rawVal) ? formatNumber(rawVal) : formatCurrency(rawVal);
-                    } else if (typeof rawVal === "string" && !isNaN(rawVal) && !isNaN(parseFloat(rawVal))) {
-                        const parsed = parseFloat(rawVal);
-                        displayVal = String(rawVal).includes('.') ? formatCurrency(parsed) : formatNumber(parsed);
-                    } else {
-                        displayVal = rawVal;
-                    }
-                }
-
-                tr.innerHTML = `<td class="detail-row-header">\${label}</td><td>\${displayVal}</td>`;
-                tbody.appendChild(tr);
-            });
-
-            bsModalDetails.show();
         }
 
         function openNfModal(url) {

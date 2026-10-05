@@ -5,17 +5,11 @@ namespace FNDE\Painel;
 class HtmlExporter
 {
     /**
-     * Gera o arquivo HTML standalone offline com colunas enxutas,
-     * links diretos para modal de detalhes no Fornecedor e Descrição,
-     * sem barra de rolagem vertical na tabela, formatação PT-BR nos números,
-     * botão de abertura da NF na ficha e data/hora de geração no fuso correto (Brasília).
+     * Gera o arquivo HTML standalone offline com colunas enxutas
+     * e modal de detalhes dinâmico para os dados excedentes.
      */
     public static function generateStandaloneHtml(array $payloadData): string
     {
-        // Define o fuso horário padrão para o horário de Brasília (UTC-3)
-        date_default_timezone_set('America/Sao_Paulo');
-        $dataGeracao = date('d/m/Y \à\s H:i');
-
         $jsonString = json_encode($payloadData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return <<<HTML
@@ -30,11 +24,12 @@ class HtmlExporter
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        .table-responsive { max-height: 65vh; overflow-y: auto; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { background-color: #343a40 !important; }
         .detail-row-header { background-color: #f8f9fa; font-weight: 600; color: #495057; width: 40%; }
-        .link-modal-detail { color: #0d6efd; text-decoration: none; border-bottom: 1px dashed #0d6efd; cursor: pointer; font-weight: 500; }
-        .link-modal-detail:hover { color: #0a58ca; border-bottom-style: solid; }
+        .link-modal-detail { color: inherit; text-decoration: none; border-bottom: 1px dashed #0d6efd; cursor: pointer; }
+        .link-modal-detail:hover { color: #0d6efd; border-bottom-style: solid; }
     </style>
 </head>
 <body class="bg-light">
@@ -46,9 +41,7 @@ class HtmlExporter
                 <i class="bi bi-file-earmark-spreadsheet me-2"></i>
                 Gestão de Faturamento - PNLD / Editoras
             </span>
-            <span class="badge bg-light text-primary fs-7">
-                <i class="bi bi-clock-history me-1"></i>Gerado em: {$dataGeracao}
-            </span>
+            <span class="badge bg-light text-primary fs-7">Versão Offline / Exportada</span>
         </div>
     </nav>
 
@@ -147,7 +140,7 @@ class HtmlExporter
             </div>
         </div>
 
-        <!-- Tabela Dinâmica sem Barra de Rolagem Vertical -->
+        <!-- Tabela Dinâmica com Colunas Principais -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -160,7 +153,7 @@ class HtmlExporter
         </div>
     </div>
 
-    <!-- MODAL DE FICHA COMPLETA -->
+    <!-- MODAL DE FICHA COMPLETA (EXCEDEDENTES DA PLANILHA) -->
     <div class="modal fade" id="modalDetails" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content shadow">
@@ -204,6 +197,7 @@ class HtmlExporter
     <script>
         const DATASET = {$jsonString};
 
+        // Definição estrita das chaves permitidas na tabela inicial
         const VISIBLE_KEYS = [
             "nome_do_fornecedor", "fornecedor",
             "sku",
@@ -382,7 +376,8 @@ class HtmlExporter
                 html += `<th class="\${alignClass} sortable" onclick="sortTable('\${col.chave}')">\${col.rotulo}\${icon}</th>`;
             });
 
-            html += "</tr>";
+            // Coluna Fixa para abrir Modal de Ficha Completa
+            html += `<th class="text-center">Ficha</th></tr>`;
             thead.innerHTML = html;
         }
 
@@ -395,7 +390,7 @@ class HtmlExporter
             const visCols = getVisibleColumns(colunas);
 
             if (!dados || dados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="\${visCols.length}" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhum registro encontrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="\${visCols.length + 1}" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhum registro encontrado.</td></tr>`;
                 return;
             }
 
@@ -405,14 +400,8 @@ class HtmlExporter
                 visCols.forEach(col => {
                     const td = document.createElement("td");
                     const rawVal = row[col.chave];
-                    const ch = col.chave;
 
-                    const isModalTriggerKey = [
-                        "nome_do_fornecedor", "fornecedor", 
-                        "descricao_item", "descricao", "item"
-                    ].includes(ch);
-
-                    if (col.tipo === "link_nf" || ch === "link_nf") {
+                    if (col.tipo === "link_nf" || col.chave === "link_nf") {
                         td.className = "text-center";
                         const url = row.link_nf || row.pdf || "";
                         if (url && url.trim() !== "") {
@@ -420,11 +409,8 @@ class HtmlExporter
                         } else {
                             td.innerHTML = `<span class="badge bg-light text-muted border">Sem NF</span>`;
                         }
-                    } else if (isModalTriggerKey) {
-                        const labelText = rawVal !== undefined && rawVal !== null && rawVal !== "" ? rawVal : "-";
-                        td.innerHTML = `<span class="link-modal-detail" title="Clique para ver a ficha completa" onclick="openDetailsModal(\${idx})">\${labelText}</span>`;
                     } else if (col.tipo === "currency") {
-                        td.className = "text-end fw-semibold " + (ch === "valor_faturamento" && (!rawVal || rawVal === "0") ? "text-danger" : "text-dark");
+                        td.className = "text-end fw-semibold " + (col.chave === "valor_faturamento" && (!rawVal || rawVal === "0") ? "text-danger" : "text-dark");
                         td.textContent = formatCurrency(rawVal);
                     } else if (col.tipo === "numero" || col.tipo === "dias") {
                         td.className = "text-end";
@@ -449,6 +435,12 @@ class HtmlExporter
 
                     tr.appendChild(td);
                 });
+
+                // Botão de Detalhes Excedentes
+                const tdActions = document.createElement("td");
+                tdActions.className = "text-center";
+                tdActions.innerHTML = `<button class="btn btn-sm btn-light border py-0 px-2" title="Ver dados completos" onclick="openDetailsModal(\${idx})"><i class="bi bi-eye text-secondary"></i></button>`;
+                tr.appendChild(tdActions);
 
                 tbody.appendChild(tr);
             });
@@ -516,6 +508,9 @@ class HtmlExporter
             renderTable(DATASET.colunas, currentFilteredData);
         }
 
+        /**
+         * EXIBE O MODAL COM TODOS OS DADOS DO REGISTRO (INCLUINDO EXCEDENTES)
+         */
         function openDetailsModal(index) {
             const item = currentFilteredData[index];
             if (!item) return;
@@ -523,53 +518,23 @@ class HtmlExporter
             const tbody = document.getElementById("modalDetailsBody");
             tbody.innerHTML = "";
 
-            const colConfigMap = {};
+            const colMap = {};
             if (DATASET.colunas) {
-                DATASET.colunas.forEach(c => colConfigMap[c.chave] = c);
+                DATASET.colunas.forEach(c => colMap[c.chave] = c.rotulo);
             }
 
-            const keys = Object.keys(item);
-            if (!keys.includes("link_nf") && item.pdf) {
-                keys.push("link_nf");
-            }
-
-            keys.forEach(key => {
-                if (key === "pdf") return;
+            Object.keys(item).forEach(key => {
+                if (key === "link_nf" || key === "pdf") return;
 
                 const tr = document.createElement("tr");
-                const colDef = colConfigMap[key];
-                const label = colDef ? colDef.rotulo : (key === "link_nf" ? "Nota Fiscal" : key.replace(/_/g, ' ').toUpperCase());
-                const rawVal = item[key] || (key === "link_nf" ? item.pdf : null);
+                const label = colMap[key] || key.replace(/_/g, ' ').toUpperCase();
+                let val = item[key];
 
-                let displayVal = "-";
-
-                if (key === "link_nf") {
-                    const url = rawVal || item.pdf || "";
-                    if (url && String(url).trim() !== "") {
-                        displayVal = `<button class="btn btn-sm btn-primary py-1 px-3" onclick="openNfModal('\${url}')"><i class="bi bi-file-earmark-pdf me-1"></i> Visualizar Nota Fiscal</button>`;
-                    } else {
-                        displayVal = `<span class="badge bg-light text-muted border">Sem NF anexada</span>`;
-                    }
-                } else if (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") {
-                    const tipo = colDef ? colDef.tipo : null;
-
-                    if (tipo === "currency" || key.includes("valor") || key.includes("subtotal") || key.includes("diaria")) {
-                        displayVal = formatCurrency(rawVal);
-                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("dias")) {
-                        displayVal = formatNumber(rawVal);
-                    } else if (tipo === "data" || tipo === "status_data" || (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim()))) {
-                        displayVal = formatDateToBR(rawVal);
-                    } else if (typeof rawVal === "number") {
-                        displayVal = Number.isInteger(rawVal) ? formatNumber(rawVal) : formatCurrency(rawVal);
-                    } else if (typeof rawVal === "string" && !isNaN(rawVal) && !isNaN(parseFloat(rawVal))) {
-                        const parsed = parseFloat(rawVal);
-                        displayVal = String(rawVal).includes('.') ? formatCurrency(parsed) : formatNumber(parsed);
-                    } else {
-                        displayVal = rawVal;
-                    }
+                if (typeof val === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(val.trim())) {
+                    val = formatDateToBR(val);
                 }
 
-                tr.innerHTML = `<td class="detail-row-header">\${label}</td><td>\${displayVal}</td>`;
+                tr.innerHTML = `<td class="detail-row-header">\${label}</td><td>\${val !== null && val !== undefined && val !== "" ? val : "-"}</td>`;
                 tbody.appendChild(tr);
             });
 

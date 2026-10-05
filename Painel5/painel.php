@@ -54,9 +54,9 @@ if (is_dir($dirRelatorios)) {
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1"><i class="bi bi-folder-fill text-warning me-2"></i> Painel de Relatórios Gerados</h3>
-                        <p class="text-muted mb-0">Gerencie e acesse as versões salvas no servidor.</p>
+                        <p class="text-muted mb-0">Gerencie e acesse as versões salvas no servidor (`/relatorios`).</p>
                     </div>
-                    <a href="gerar.php" class="btn btn-success fw-semibold">
+                    <a href="gerar_json.php" class="btn btn-success fw-semibold">
                         <i class="bi bi-plus-lg me-1"></i> Gerar Novo Relatório
                     </a>
                 </div>
@@ -98,12 +98,15 @@ if (is_dir($dirRelatorios)) {
                                                 <td><?= $rel['data_criacao'] ?></td>
                                                 <td><span class="badge bg-light text-dark border"><?= $rel['tamanho'] ?></span></td>
                                                 <td class="text-center">
+                                                    <!-- Visualizar / Abrir local -->
                                                     <a href="<?= $rel['link_acesso'] ?>" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Abrir em Nova Aba">
                                                         <i class="bi bi-eye-fill"></i> Visualizar
                                                     </a>
+                                                    <!-- Baixar -->
                                                     <a href="<?= $rel['link_acesso'] ?>" download class="btn btn-sm btn-outline-secondary me-1" title="Baixar Arquivo HTML">
                                                         <i class="bi bi-download"></i> Baixar
                                                     </a>
+                                                    <!-- Excluir -->
                                                     <a href="painel.php?acao=excluir&arquivo=<?= urlencode($rel['nome']) ?>" 
                                                        class="btn btn-sm btn-outline-danger" 
                                                        onclick="return confirm('Tem certeza que deseja excluir esta versão do relatório?');" 
@@ -124,7 +127,6 @@ if (is_dir($dirRelatorios)) {
         </div>
     </div>
 
-    <!-- Script corrigido para src= -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

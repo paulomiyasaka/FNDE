@@ -4,7 +4,6 @@ namespace FNDE\Painel;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Exception;
-use DateTime;
 
 class ExcelReader
 {
@@ -82,12 +81,6 @@ class ExcelReader
         return preg_replace('/_+/', '_', trim($string, '_'));
     }
 
-    private function sanitizeString(string $value): string
-    {
-        $clean = preg_replace('/\s+/', ' ', $value);
-        return trim($clean);
-    }
-
     private function inferType(string $key): string
     {
         if (str_contains($key, 'valor') || str_contains($key, 'faturamento') || str_contains($key, 'subtotal')) {
@@ -99,57 +92,55 @@ class ExcelReader
         return 'string';
     }
 
-
-    private function parseCurrency(mixed $value): float
-{
-    // Se já for numérico nativo (float/int do Excel), retorna direto
-    if (is_numeric($value)) {
-        return (float) $value;
-    }
-
-    if (is_string($value)) {
-        // Remove R$, espaços e caracteres não numéricos exceto vírgula, ponto e sinal de menos
-        $clean = preg_replace('/[^\d.,-]/', '', $value);
-
-        if (empty($clean)) {
-            return 0.0;
-        }
-
-        // Se tem ponto e vírgula, identificamos qual é o decimal pelo último que aparece
-        $lastDot = strrpos($clean, '.');
-        $lastComma = strrpos($clean, ',');
-
-        if ($lastDot !== false && $lastComma !== false) {
-            if ($lastComma > $lastDot) {
-                // Formato PT-BR: 94.600,00 -> remove ponto, troca vírgula por ponto
-                $clean = str_replace('.', '', $clean);
-                $clean = str_replace(',', '.', $clean);
-            } else {
-                // Formato EN-US: 94,600.00 -> remove vírgula
-                $clean = str_replace(',', '', $clean);
-            }
-        } elseif ($lastComma !== false) {
-            // Apenas vírgula: 94600,00 -> troca por ponto
-            $clean = str_replace(',', '.', $clean);
-        }
-
-        return (float) $clean;
-    }
-
-    return 0.0;
-}
-
-    private function formatValue(string $type, mixed $value): mixed
+    private function formatValue(string $key, mixed $val): mixed
     {
-        if ($value === null || $value === '') {
-            return null;
+        if ($val === null || $val === '') {
+            return '';
         }
 
-        return match ($type) {
-            'moeda' => $this->parseCurrency($value),
-            'numero' => is_numeric($value) ? (int) $value : (int) preg_replace('/\D/', '', (string) $value),
-            'string' => $this->sanitizeString((string) $value),
-            default => is_string($value) ? $this->sanitizeString($value) : $value,
-        };
+        // 1. TRATAMENTO DE DATAS
+        if (str_contains($key, 'data') || str_contains($key, 'dt_')) {
+            if (is_numeric($val)) {
+                $unixTimestamp = Date::excelToTimestamp((float)$val);
+                return date('d/m/Y', $unixTimestamp);
+            }
+
+            if (is_string($val)) {
+                $val = trim($val);
+                if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                    return $val;
+                }
+                try {
+                    $dateObj = new DateTime($val);
+                    return $dateObj->format('d/m/Y');
+                } catch (Exception $e) {
+                    return $val;
+                }
+            }
+        }
+
+        // 2. TRATAMENTO DE VALORES NUMÉRICOS / MOEDA
+        if (is_numeric($val)) {
+            return (float)$val;
+        }
+
+        if (is_string($val)) {
+            $val = trim($val);
+
+            // Remove R$ e espaços invisíveis
+            $val = str_replace(['R$', ' ', "\xc2\xa0"], '', $val);
+
+            // Se for padrão brasileiro (ex: "10.057,20" ou "2,55")
+            if (str_contains($val, ',')) {
+                $val = str_replace('.', '', $val);  // Remove ponto de milhar
+                $val = str_replace(',', '.', $val);  // Troca vírgula decimal por ponto
+            }
+
+            if (is_numeric($val)) {
+                return (float)$val;
+            }
+        }
+
+        return $val;
     }
 }
