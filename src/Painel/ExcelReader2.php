@@ -21,7 +21,13 @@ class ExcelReader
     {
         $spreadsheet = IOFactory::load($this->filePath);
         $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray(null, true, true, true);
+        
+        // PARAMETROS DO toArray:
+        // null = valor nulo padrão
+        // true = calcula fórmulas (pega o resultado final)
+        // false = NÃO aplica formatação de máscara do Excel (pega o número puro/bruto)
+        // true = indexa colunas por letra ('A', 'B', 'C')
+        $rows = $sheet->toArray(null, true, false, true);
 
         if (empty($rows)) {
             return ['colunas' => [], 'dados' => []];
@@ -39,16 +45,16 @@ class ExcelReader
             $headerMap[$colLetter] = $key;
 
             $colunas[] = [
-                'chave'  => $key,
+                'chave' => $key,
                 'rotulo' => trim((string)$colName),
-                'tipo'   => $this->inferType($key)
+                'tipo' => $this->inferType($key)
             ];
         }
 
-        // 2. Processa linhas de dados
+        // 2. Extrai linhas de dados
         $dados = [];
         foreach ($rows as $row) {
-            if (!array_filter($row)) continue; // Pula linhas totalmente vazias
+            if (!array_filter($row)) continue;
 
             $item = [];
             foreach ($headerMap as $colLetter => $key) {
@@ -60,15 +66,15 @@ class ExcelReader
 
         return [
             'metadados' => [
-                'dataGeracao'    => date('d/m/Y H:i:s'),
+                'dataGeracao' => date('d/m/Y H:i:s'),
                 'totalRegistros' => count($dados)
             ],
             'colunas' => $colunas,
-            'dados'   => $dados
+            'dados' => $dados
         ];
     }
 
-    public function sanitizeKey(string $string): string
+    private function sanitizeKey(string $string): string
     {
         $string = mb_strtolower(trim($string), 'UTF-8');
         $string = preg_replace('/[áàãâä]/u', 'a', $string);
@@ -83,7 +89,7 @@ class ExcelReader
 
     private function inferType(string $key): string
     {
-        if (str_contains($key, 'valor') || str_contains($key, 'faturamento') || str_contains($key, 'subtotal')) {
+        if (str_contains($key, 'valor') || str_contains($key, 'faturamento') || str_contains($key, 'subtotal') || str_contains($key, 'preco')) {
             return 'currency';
         }
         if (str_contains($key, 'tiragem') || str_contains($key, 'palete') || str_contains($key, 'dias') || str_contains($key, 'acervo')) {
@@ -94,17 +100,53 @@ class ExcelReader
 
     private function formatValue(string $key, mixed $val): mixed
     {
+        if ($val === null || $val === '') {
+            return '';
+        }
+
+        // 1. TRATAMENTO DE DATAS
+        if (str_contains($key, 'data') || str_contains($key, 'dt_')) {
+            if (is_numeric($val)) {
+                $unixTimestamp = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp((float)$val);
+                return date('d/m/Y', $unixTimestamp);
+            }
+
+            if (is_string($val)) {
+                $val = trim($val);
+                if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                    return $val;
+                }
+                try {
+                    $dateObj = new \DateTime($val);
+                    return $dateObj->format('d/m/Y');
+                } catch (\Exception $e) {
+                    return $val;
+                }
+            }
+        }
+
+        // 2. TRATAMENTO DE VALORES NUMÉRICOS / MOEDA
         if (is_numeric($val)) {
             return (float)$val;
         }
+
         if (is_string($val)) {
             $val = trim($val);
-            if (str_contains($val, 'R$')) {
-                $clean = str_replace(['R$', '.', ' '], '', $val);
-                $clean = str_replace(',', '.', $clean);
-                return (float)$clean;
+
+            // Remove o R$ e espaços invisíveis
+            $val = str_replace(['R$', ' ', "\xc2\xa0"], '', $val);
+
+            // Se for padrão brasileiro (ex: "10.057,20" ou "2,55")
+            if (str_contains($val, ',')) {
+                $val = str_replace('.', '', $val); // Remove ponto de milhar
+                $val = str_replace(',', '.', $val); // Troca vírgula decimal por ponto
+            }
+
+            if (is_numeric($val)) {
+                return (float)$val;
             }
         }
+
         return $val;
     }
 }

@@ -1,51 +1,12 @@
 // Estado global
 let parsedData = [];
 
-/**
- * PARSER DEFINITIVO DE MOEDA E NÚMEROS PT-BR
- * Trata floats do JS, strings como "2,55", "30.600,00" ou "30.600"
- */
-function parseCurrencyNumber(val) {
-    if (val === null || val === undefined || val === "") return 0;
-    
-    // 1. Se já for tipo number (float/int do JS)
-    if (typeof val === "number") return val;
-
-    // 2. Limpeza de prefixo R$, espaços e caracteres não numéricos/separadores
-    let str = String(val).replace(/R\$\s?|\s/g, "").trim();
-    if (!str) return 0;
-
-    // Se a string tem ponto e vírgula (ex: "30.600,00")
-    if (str.includes(".") && str.includes(",")) {
-        // Remove todos os pontos de milhar e troca a vírgula por ponto decimal
-        str = str.replace(/\./g, "").replace(",", ".");
-    } 
-    // Se a string tem apenas vírgula (ex: "2,55" ou "30600,00")
-    else if (str.includes(",")) {
-        str = str.replace(",", ".");
-    } 
-    // Se a string tem apenas ponto (ex: "30.600" vs "2.55")
-    else if (str.includes(".")) {
-        const parts = str.split(".");
-        // Se após o ponto houver exatamente 3 dígitos (ex: 30.600), trata como milhar
-        if (parts.length > 1 && parts[parts.length - 1].length === 3) {
-            str = str.replace(/\./g, "");
-        }
-        // Caso contrário (ex: "2.55"), mantém o ponto decimal
-    }
-
-    const num = parseFloat(str);
-    return isNaN(num) ? 0 : num;
-}
-
 function formatCurrency(val) {
-    const num = parseCurrencyNumber(val);
-    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    return (val || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 function formatNumber(val, decimals = 0) {
-    const num = parseCurrencyNumber(val);
-    return num.toLocaleString("pt-BR", {
+    return (val || 0).toLocaleString("pt-BR", {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
     });
@@ -68,47 +29,24 @@ function populateSupplierSelect(data) {
 }
 
 function updateCards(filteredData) {
-    // 1. Total Faturado: Mantida a regra de ignorar "Não Recebido" + parser de conversão
     const totalFaturamento = filteredData.reduce((acc, cur) => {
-        return cur.dataRecebimento === "Não Recebido" 
-            ? acc 
-            : acc + parseCurrencyNumber(cur.valorFaturamento || cur.subtotal || 0);
+        return cur.dataRecebimento === "Não Recebido" ? acc : acc + (cur.valorFaturamento || 0);
     }, 0);
     
-    // 2. Total Tiragem: Mantida a regra de ignorar "Não Recebido"
     const totalTiragem = filteredData.reduce((acc, cur) => {
-        return cur.dataRecebimento === "Não Recebido" 
-            ? acc 
-            : acc + parseCurrencyNumber(cur.tiragem || 0);
+        return cur.dataRecebimento === "Não Recebido" ? acc : acc + (cur.tiragem || 0);
     }, 0);
 
-    const totalPaletes = filteredData.reduce((acc, cur) => acc + parseCurrencyNumber(cur.qtdPaletesPorMilheiro || cur.posicoes_porta_palete || 0), 0);
-    const totalDias = filteredData.reduce((acc, cur) => acc + parseCurrencyNumber(cur.diasArmazenamento || 0), 0);
-    
-    const recebidos = filteredData.filter(item => item.dataRecebimento !== "Não Recebido");
-    const naoRecebidos = filteredData.filter(item => item.dataRecebimento === "Não Recebido");
-    const qtdRecebidos = recebidos.length;
+    const totalPaletes = filteredData.reduce((acc, cur) => acc + (cur.qtdPaletesPorMilheiro || 0), 0);
+    const totalDias = filteredData.reduce((acc, cur) => acc + (cur.diasArmazenamento || 0), 0);
+    const qtdRegistros = filteredData.filter(item => item.dataRecebimento !== "Não Recebido").length;
 
-    // 3. Média de Armazenagem Palete/Dia (apenas valores informados > 0)
-    let somaValoresDiarias = 0;
-    let qtdValoresDiarias = 0;
-    filteredData.forEach(item => {
-        const vDiaria = parseCurrencyNumber(item.valor_dia_armazenagem || item.valor_armazenagem_palete_dia || item.valorDiaria || 0);
-        if (vDiaria > 0) {
-            somaValoresDiarias += vDiaria;
-            qtdValoresDiarias++;
-        }
-    });
-    const mediaValDiaria = qtdValoresDiarias > 0 ? (somaValoresDiarias / qtdValoresDiarias) : 0;
-
-    // Atualização dos elementos na tela
     if (document.getElementById("cardTotalFaturamento")) document.getElementById("cardTotalFaturamento").textContent = formatCurrency(totalFaturamento);
     if (document.getElementById("cardTotalTiragem")) document.getElementById("cardTotalTiragem").textContent = formatNumber(totalTiragem);
-    if (document.getElementById("cardTotalNaoRecebido")) document.getElementById("cardTotalNaoRecebido").textContent = naoRecebidos.length;
-    if (document.getElementById("cardTotalRegistros")) document.getElementById("cardTotalRegistros").textContent = qtdRecebidos;
+    if (document.getElementById("cardTotalNaoRecebido")) document.getElementById("cardTotalNaoRecebido").textContent = filteredData.filter(item => item.dataRecebimento === "Não Recebido").length;
+    if (document.getElementById("cardTotalRegistros")) document.getElementById("cardTotalRegistros").textContent = qtdRegistros;
     if (document.getElementById("cardTotalPaletes")) document.getElementById("cardTotalPaletes").textContent = formatNumber(totalPaletes);
-    if (document.getElementById("cardTotalDias")) document.getElementById("cardTotalDias").textContent = formatNumber(qtdRecebidos > 0 ? totalDias / qtdRecebidos : 0);
-    if (document.getElementById("cardValorDiaria")) document.getElementById("cardValorDiaria").textContent = formatCurrency(mediaValDiaria);
+    if (document.getElementById("cardTotalDias")) document.getElementById("cardTotalDias").textContent = formatNumber(qtdRegistros > 0 ? totalDias / qtdRegistros : 0);
 
     if (document.getElementById("recordCounter")) document.getElementById("recordCounter").textContent = `Mostrando ${filteredData.length} registros`;
 }
@@ -136,9 +74,10 @@ function renderTable(data) {
         const tr = document.createElement("tr");
         const statusNaoRecebido = item.dataRecebimento === 'Não Recebido';
 
-        const btnDetalharSupplier = `<a href="javascript:void(0)" class="text-decoration-none fw-semibold text-dark" onclick="abrirModalDetalhes(${index})">${item.fornecedor || '-'}</a>`;
-        const btnDetalharSku = `<a href="javascript:void(0)" class="badge bg-light text-dark border text-decoration-none" onclick="abrirModalDetalhes(${index})">${item.sku || '-'}</a>`;
-        const btnDetalharDesc = `<a href="javascript:void(0)" class="text-decoration-none fw-semibold text-primary" onclick="abrirModalDetalhes(${index})">${item.descricao || '-'}</a>`;
+        // Links interativos que disparam o Modal
+        const btnDetalharSupplier = `<a href="javascript:void(0)" class="text-decoration-none fw-semibold text-dark" onclick="abrirModalDetalhes(${index})">${item.fornecedor}</a>`;
+        const btnDetalharSku = `<a href="javascript:void(0)" class="badge bg-light text-dark border text-decoration-none" onclick="abrirModalDetalhes(${index})">${item.sku}</a>`;
+        const btnDetalharDesc = `<a href="javascript:void(0)" class="text-decoration-none fw-semibold text-primary" onclick="abrirModalDetalhes(${index})">${item.descricao}</a>`;
 
         let linha = `
             <td class="fw-bold text-secondary fs-7 text-center">${index + 1}</td>
@@ -181,6 +120,9 @@ function renderTable(data) {
     });
 }
 
+/**
+ * Exibe o Modal com TODAS as informações do item (incluindo as colunas excedentes)
+ */
 function abrirModalDetalhes(index) {
     const item = parsedData[index];
     if (!item) return;
@@ -189,14 +131,14 @@ function abrirModalDetalhes(index) {
 
     let htmlConteudo = `
         <div class="row g-3">
-            <div class="col-md-6"><strong>Fornecedor:</strong> ${item.fornecedor || '-'}</div>
+            <div class="col-md-6"><strong>Fornecedor:</strong> ${item.fornecedor}</div>
             <div class="col-md-6"><strong>CNPJ:</strong> ${item.cnpj || 'N/A'}</div>
-            <div class="col-md-6"><strong>SKU:</strong> ${item.sku || '-'}</div>
-            <div class="col-md-6"><strong>Acervo:</strong> ${item.acervo || '-'}</div>
+            <div class="col-md-6"><strong>SKU:</strong> ${item.sku}</div>
+            <div class="col-md-6"><strong>Acervo:</strong> ${item.acervo}</div>
             <div class="col-md-6"><strong>Tiragem:</strong> ${formatNumber(item.tiragem)}</div>
             <div class="col-md-6"><strong>Valor Faturamento:</strong> ${formatCurrency(item.valorFaturamento)}</div>
-            <div class="col-md-6"><strong>Data Recebimento:</strong> ${item.dataRecebimento || '-'}</div>
-            <div class="col-md-6"><strong>Dias Armazenamento:</strong> ${item.diasArmazenamento || 0}</div>
+            <div class="col-md-6"><strong>Data Recebimento:</strong> ${item.dataRecebimento}</div>
+            <div class="col-md-6"><strong>Dias Armazenamento:</strong> ${item.diasArmazenamento}</div>
         </div>
         <hr>
         <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-info-circle me-1"></i> Informações Adicionais (Colunas Excedentes)</h6>
@@ -211,7 +153,10 @@ function abrirModalDetalhes(index) {
                 <tbody>
     `;
 
+    // Percorre campos ocultos/excedentes
     let temExcedentes = false;
+
+    // Se vier do PHP no nó 'detalhesExcedentes' ou se lermos direto do objeto ignorando os padrões
     const camposPadrao = ['chave','cnpj','fornecedor','sku','descricao','acervo','tiragem','qtdPaletesPorMilheiro','diasArmazenamento','dataRecebimento','valorFaturamento','arquivoNf','detalhesExcedentes'];
 
     for (const [key, value] of Object.entries(item)) {
