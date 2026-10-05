@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['excel_file'])) {
         if (!is_dir($dirRelatorios)) {
             mkdir($dirRelatorios, 0755, true);
         }
-
+        date_default_timezone_set('America/Sao_Paulo');
         // 4. Salva o arquivo fisicamente na pasta relatorios
         $filename = "Relatorio_Faturamento_" . date('Ymd_His') . ".html";
         $filepath = $dirRelatorios . '/' . $filename;

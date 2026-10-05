@@ -6,8 +6,11 @@ class HtmlExporter
 {
     /**
      * Gera o arquivo HTML standalone offline com colunas enxutas,
-     * links diretos para modal de detalhes no Fornecedor e Descrição,
-     * sem barra de rolagem vertical na tabela, formatação PT-BR nos números,
+     * largura controlada (100% sem estourar), quebra de texto nos cabeçalhos,
+     * CNPJ renderizado na linha abaixo do Fornecedor,
+     * substituição do Acervo por Tiragem e inclusão do Valor Unitário,
+     * botões para aumentar e diminuir a fonte da tabela,
+     * destaque de cor no Valor do Faturamento (Verde > 0 e Vermelho <= 0),
      * botão de abertura da NF na ficha e data/hora de geração no fuso correto (Brasília).
      */
     public static function generateStandaloneHtml(array $payloadData): string
@@ -30,6 +33,26 @@ class HtmlExporter
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        /* Controle rígido da largura da tabela */
+        .custom-fixed-table {
+            table-layout: fixed !important;
+            width: 100% !important;
+        }
+        
+        /* Permitir quebra de texto nos cabeçalhos e células */
+        .custom-fixed-table th {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            vertical-align: middle;
+            font-size: 0.85rem;
+        }
+        .custom-fixed-table td {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            vertical-align: middle;
+            font-size: 0.875rem;
+        }
+
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { background-color: #343a40 !important; }
         .detail-row-header { background-color: #f8f9fa; font-weight: 600; color: #495057; width: 40%; }
@@ -94,7 +117,7 @@ class HtmlExporter
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm border-start border-4 border-primary">
                     <div class="card-body py-3">
-                        <h6 class="text-muted fw-normal mb-1">Total Posições Porta Palete</h6>
+                        <h6 class="text-muted fw-normal mb-1">Total Unidades Armazenadas</h6>
                         <h3 class="fw-bold text-primary mb-0" id="cardTotalPaletes">0</h3>
                     </div>
                 </div>
@@ -125,14 +148,14 @@ class HtmlExporter
             </div>
         </div>
 
-        <!-- Barra de Filtros e Busca -->
+        <!-- Barra de Filtros, Busca e Controle de Fonte da Tabela -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Buscar por Fornecedor, SKU, Descrição, Chave...">
+                            <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Buscar por Fornecedor, SKU, Descrição, CNPJ...">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -140,22 +163,34 @@ class HtmlExporter
                             <option value="">Todos os Fornecedores</option>
                         </select>
                     </div>
-                    <div class="col-md-3 text-end">
+                    <!-- Botões de Reduzir e Aumentar Fonte da Tabela -->
+                    <div class="col-md-2 text-center text-md-end">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Ajustar Fonte da Tabela">
+                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(-1)" title="Diminuir fonte da tabela">
+                                <i class="bi bi-zoom-out me-1"></i>A-
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetTableFontSize()" title="Restaurar tamanho padrão">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(1)" title="Aumentar fonte da tabela">
+                                <i class="bi bi-zoom-in me-1"></i>A+
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-end">
                         <span class="badge bg-secondary p-2 fs-6" id="recordCounter">Mostrando 0 registros</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabela Dinâmica sem Barra de Rolagem Vertical -->
+        <!-- Tabela Dinâmica Limitada a 100% da Largura -->
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        <thead class="table-dark text-nowrap" id="tableHead"></thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
+            <div class="card-body p-0 overflow-hidden">
+                <table class="table table-hover table-striped mb-0 custom-fixed-table" id="mainTable">
+                    <thead class="table-dark" id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -204,13 +239,15 @@ class HtmlExporter
     <script>
         const DATASET = {$jsonString};
 
+        // Chaves visíveis na tabela principal
         const VISIBLE_KEYS = [
             "nome_do_fornecedor", "fornecedor",
             "sku",
             "descricao_item", "descricao", "item",
-            "acervo",
+            "tiragem",
+            "valor_unitario", "valorUnitario", "preco_unitario",
             "data_recebimento", "dataRecebimento",
-            "posicoes_porta_palete", "qtdPaletesPorMilheiro",
+            "unidades_armazenadas", "posicoes_porta_palete", "qtdPaletesPorMilheiro",
             "dias_armazenamento", "diasArmazenamento",
             "valor_faturamento", "subtotal",
             "link_nf"
@@ -222,6 +259,11 @@ class HtmlExporter
         let sortKey = null;
         let sortAsc = true;
 
+        // Controle do tamanho da fonte exclusivo da tabela
+        const BASE_FONT_TH = 1; // rem
+        const BASE_FONT_TD = 1.2; // rem
+        let fontStep = 0;
+
         document.addEventListener("DOMContentLoaded", () => {
             bsModalNf = new bootstrap.Modal(document.getElementById('modalNf'));
             bsModalDetails = new bootstrap.Modal(document.getElementById('modalDetails'));
@@ -232,6 +274,29 @@ class HtmlExporter
             document.getElementById("searchInput").addEventListener("input", applyFilters);
             document.getElementById("filterFornecedor").addEventListener("change", applyFilters);
         });
+
+        function adjustTableFontSize(direction) {
+            if (fontStep + direction < -3 || fontStep + direction > 5) return;
+            fontStep += direction;
+            applyTableFontSize();
+        }
+
+        function resetTableFontSize() {
+            fontStep = 0;
+            applyTableFontSize();
+        }
+
+        function applyTableFontSize() {
+            const delta = fontStep * 0.2;
+            const newThSize = (BASE_FONT_TH + delta).toFixed(3) + 'rem';
+            const newTdSize = (BASE_FONT_TD + delta).toFixed(3) + 'rem';
+
+            const thElements = document.querySelectorAll('#mainTable th');
+            const tdElements = document.querySelectorAll('#mainTable td');
+
+            thElements.forEach(el => el.style.fontSize = newThSize);
+            tdElements.forEach(el => el.style.fontSize = newTdSize);
+        }
 
         function parseCurrencyNumber(val) {
             if (val === null || val === undefined) return 0;
@@ -251,7 +316,7 @@ class HtmlExporter
                     str = str.replace(/,/g, '');
                 }
             } else if (lastComma !== -1) {
-                str = str.replace(',', '.');
+                str = str.replace(/,/g, '');
             }
 
             const num = parseFloat(str);
@@ -308,6 +373,22 @@ class HtmlExporter
             return colunas.filter(col => VISIBLE_KEYS.includes(col.chave));
         }
 
+        function getColWidthStyle(chave) {
+            switch (chave) {
+                case 'nome_do_fornecedor': case 'fornecedor': return 'style="width: 18%;"';
+                case 'sku': return 'style="width: 7%;"';
+                case 'descricao_item': case 'descricao': case 'item': return 'style="width: 20%;"';
+                case 'tiragem': return 'style="width: 8%;"';
+                case 'valor_unitario': case 'valorUnitario': case 'preco_unitario': return 'style="width: 9%;"';
+                case 'data_recebimento': case 'dataRecebimento': return 'style="width: 9%;"';
+                case 'unidades_armazenadas': case 'posicoes_porta_palete': case 'qtdPaletesPorMilheiro': return 'style="width: 8%;"';
+                case 'dias_armazenamento': case 'diasArmazenamento': return 'style="width: 6%;"';
+                case 'valor_faturamento': case 'subtotal': return 'style="width: 10%;"';
+                case 'link_nf': return 'style="width: 5%;"';
+                default: return 'style="width: 10%;"';
+            }
+        }
+
         function updateCards(dados) {
             let totalFaturamento = 0;
             let totalTiragem = 0;
@@ -333,7 +414,7 @@ class HtmlExporter
                     titulosNaoRecebidos++;
                 }
 
-                totalPaletes += parseCurrencyNumber(item.posicoes_porta_palete || item.qtdPaletesPorMilheiro || 0);
+                totalPaletes += parseCurrencyNumber(item.unidades_armazenadas || item.posicoes_porta_palete || item.qtdPaletesPorMilheiro || 0);
 
                 const valDiariaLinha = parseCurrencyNumber(item.valor_dia_armazenagem || item.valor_armazenagem_palete_dia || item.valorDiaria || 0);
                 if (valDiariaLinha > 0) {
@@ -373,13 +454,14 @@ class HtmlExporter
 
             visCols.forEach(col => {
                 let alignClass = "text-start";
-                if (col.tipo === "numero" || col.tipo === "currency" || col.tipo === "dias") alignClass = "text-end";
+                if (col.tipo === "numero" || col.tipo === "currency" || col.tipo === "dias" || col.chave === "tiragem" || col.chave.includes("valor")) alignClass = "text-end";
                 if (col.tipo === "status_data" || col.tipo === "link_nf" || col.tipo === "badge" || col.tipo === "data") alignClass = "text-center";
 
                 const isSorted = sortKey === col.chave;
                 const icon = isSorted ? (sortAsc ? '<i class="bi bi-arrow-up text-warning ms-1"></i>' : '<i class="bi bi-arrow-down text-warning ms-1"></i>') : '';
+                const widthAttr = getColWidthStyle(col.chave);
 
-                html += `<th class="\${alignClass} sortable" onclick="sortTable('\${col.chave}')">\${col.rotulo}\${icon}</th>`;
+                html += `<th \${widthAttr} class="\${alignClass} sortable" onclick="sortTable('\${col.chave}')">\${col.rotulo}\${icon}</th>`;
             });
 
             html += "</tr>";
@@ -396,6 +478,7 @@ class HtmlExporter
 
             if (!dados || dados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="\${visCols.length}" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhum registro encontrado.</td></tr>`;
+                applyTableFontSize();
                 return;
             }
 
@@ -407,6 +490,7 @@ class HtmlExporter
                     const rawVal = row[col.chave];
                     const ch = col.chave;
 
+                    const isFornecedorKey = ["nome_do_fornecedor", "fornecedor"].includes(ch);
                     const isModalTriggerKey = [
                         "nome_do_fornecedor", "fornecedor", 
                         "descricao_item", "descricao", "item"
@@ -422,11 +506,29 @@ class HtmlExporter
                         }
                     } else if (isModalTriggerKey) {
                         const labelText = rawVal !== undefined && rawVal !== null && rawVal !== "" ? rawVal : "-";
-                        td.innerHTML = `<span class="link-modal-detail" title="Clique para ver a ficha completa" onclick="openDetailsModal(\${idx})">\${labelText}</span>`;
-                    } else if (col.tipo === "currency") {
-                        td.className = "text-end fw-semibold " + (ch === "valor_faturamento" && (!rawVal || rawVal === "0") ? "text-danger" : "text-dark");
+                        let htmlContent = `<span class="link-modal-detail" title="Clique para ver a ficha completa" onclick="openDetailsModal(\${idx})">\${labelText}</span>`;
+                        
+                        if (isFornecedorKey) {
+                            const cnpj = row.cnpj || row.cnpj_fornecedor || row.cnpjFornecedor || "";
+                            if (cnpj && String(cnpj).trim() !== "") {
+                                htmlContent += `<small class="text-muted d-block mt-1">CNPJ: \${cnpj}</small>`;
+                            }
+                        }
+                        
+                        td.innerHTML = htmlContent;
+                    } else if (col.tipo === "currency" || ch === "valor_unitario" || ch === "valorUnitario" || ch === "preco_unitario" || ch === "valor_faturamento" || ch === "subtotal") {
+                        const numVal = parseCurrencyNumber(rawVal);
+                        
+                        // Cor condicional para Valor de Faturamento / Subtotal
+                        if (ch === "valor_faturamento" || ch === "subtotal") {
+                            const textColorClass = numVal > 0 ? "text-success" : "text-danger";
+                            td.className = `text-end fw-semibold \${textColorClass}`;
+                        } else {
+                            td.className = "text-end fw-semibold text-dark";
+                        }
+                        
                         td.textContent = formatCurrency(rawVal);
-                    } else if (col.tipo === "numero" || col.tipo === "dias") {
+                    } else if (col.tipo === "numero" || col.tipo === "dias" || ch === "tiragem") {
                         td.className = "text-end";
                         td.textContent = formatNumber(rawVal);
                     } else if (col.tipo === "status_data") {
@@ -452,6 +554,8 @@ class HtmlExporter
 
                 tbody.appendChild(tr);
             });
+
+            applyTableFontSize();
         }
 
         function populateFornecedores(dados) {
@@ -553,9 +657,11 @@ class HtmlExporter
                 } else if (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") {
                     const tipo = colDef ? colDef.tipo : null;
 
-                    if (tipo === "currency" || key.includes("valor") || key.includes("subtotal") || key.includes("diaria")) {
+                    if (tipo === "currency" || key.includes("valor") || key.includes("subtotal") || key.includes("diaria") || key.includes("unitario")) {
                         displayVal = formatCurrency(rawVal);
-                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("dias")) {
+                    } else if (key.includes("meses")) {
+                        displayVal = Number.parseFloat(rawVal).toFixed(2);
+                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("unidades") || key.includes("dias")) {
                         displayVal = formatNumber(rawVal);
                     } else if (tipo === "data" || tipo === "status_data" || (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim()))) {
                         displayVal = formatDateToBR(rawVal);

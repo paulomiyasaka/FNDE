@@ -27,6 +27,7 @@ if (is_dir($dirRelatorios)) {
         return filemtime($b) - filemtime($a);
     });
 
+    date_default_timezone_set('America/Sao_Paulo');
     foreach ($arquivos as $filepath) {$relatorios[] = [
             'nome' => basename($filepath),
             'tamanho' => round(filesize($filepath) / 1024, 2) . ' KB',
