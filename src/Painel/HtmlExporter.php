@@ -11,6 +11,7 @@ class HtmlExporter
      * substituição do Acervo por Tiragem e inclusão do Valor Unitário,
      * botões para aumentar e diminuir a fonte da tabela,
      * destaque de cor no Valor do Faturamento (Verde > 0 e Vermelho <= 0),
+     * suporte a variações de nomes para Paletes Armazenados ("Paletes Armazenados" na tabela e modal),
      * botão de abertura da NF na ficha e data/hora de geração no fuso correto (Brasília).
      */
     public static function generateStandaloneHtml(array $payloadData): string
@@ -44,13 +45,13 @@ class HtmlExporter
             white-space: normal !important;
             word-wrap: break-word !important;
             vertical-align: middle;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         .custom-fixed-table td {
             white-space: normal !important;
             word-wrap: break-word !important;
             vertical-align: middle;
-            font-size: 0.875rem;
+            font-size: 1.0rem;
         }
 
         th.sortable { cursor: pointer; user-select: none; }
@@ -117,7 +118,7 @@ class HtmlExporter
             <div class="col-md-3">
                 <div class="card border-0 shadow-sm border-start border-4 border-primary">
                     <div class="card-body py-3">
-                        <h6 class="text-muted fw-normal mb-1">Total Unidades Armazenadas</h6>
+                        <h6 class="text-muted fw-normal mb-1">Total Paletes Armazenados</h6>
                         <h3 class="fw-bold text-primary mb-0" id="cardTotalPaletes">0</h3>
                     </div>
                 </div>
@@ -152,33 +153,46 @@ class HtmlExporter
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-5">
+                    <!-- Busca: 4 colunas -->
+                    <div class="col-lg-4 col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
                             <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Buscar por Fornecedor, SKU, Descrição, CNPJ...">
                         </div>
                     </div>
-                    <div class="col-md-3">
+
+                    <!-- Fornecedor: 3 colunas -->
+                    <div class="col-lg-3 col-md-6">
                         <select id="filterFornecedor" class="form-select">
                             <option value="">Todos os Fornecedores</option>
                         </select>
                     </div>
-                    <!-- Botões de Reduzir e Aumentar Fonte da Tabela -->
-                    <div class="col-md-2 text-center text-md-end">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Ajustar Fonte da Tabela">
-                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(-1)" title="Diminuir fonte da tabela">
+
+                    <!-- Ano: 2 colunas -->
+                    <div class="col-lg-2 col-md-4">
+                        <select id="filterAnoAcervo" class="form-select">
+                            <option value="">Ano</option>
+                        </select>
+                    </div>
+
+                    <!-- Botões de Fonte: 3 colunas (alinhados) -->
+                    <div class="col-lg-3 col-md-8 d-flex justify-content-between justify-content-lg-end align-items-center gap-2">
+                        <div class="btn-group btn-group-sm text-nowrap" role="group" aria-label="Ajustar Fonte da Tabela">
+                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(-1)" title="Diminuir fonte">
                                 <i class="bi bi-zoom-out me-1"></i>A-
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="resetTableFontSize()" title="Restaurar tamanho padrão">
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetTableFontSize()" title="Restaurar tamanho">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(1)" title="Aumentar fonte da tabela">
+                            <button type="button" class="btn btn-outline-secondary" onclick="adjustTableFontSize(1)" title="Aumentar fonte">
                                 <i class="bi bi-zoom-in me-1"></i>A+
                             </button>
                         </div>
-                    </div>
-                    <div class="col-md-2 text-end">
-                        <span class="badge bg-secondary p-2 fs-6" id="recordCounter">Mostrando 0 registros</span>
+
+                        <!-- Badge de Registros -->
+                        <span class="badge bg-secondary p-2 text-nowrap" id="recordCounter">0 registros</span>
                     </div>
                 </div>
             </div>
@@ -239,15 +253,26 @@ class HtmlExporter
     <script>
         const DATASET = {$jsonString};
 
-        // Chaves visíveis na tabela principal
+        // Chaves de Paletes com suporte a todas as variações
+        const PALETTE_KEYS = [
+            "paletes_armazenados", "paletes_recebidos",
+            "qtd_paletes_armazenados", "qtd_paletes_recebidos",
+            "quant_paletes_armazenados", "quant_paletes_recebidos",
+            "quantidade_paletes_armazenados", "quantidade_paletes_recebidos",
+            "qtd_palets_armazenados", "qtd_palets_recebidos",
+            "palets_armazenados", "palets_recebidos",
+        ];
+
+        // Chaves visíveis na tabela principal (unidades_armazenadas omitida intencionalmente)
         const VISIBLE_KEYS = [
             "nome_do_fornecedor", "fornecedor",
             "sku",
+            "ano_acervo",
             "descricao_item", "descricao", "item",
             "tiragem",
             "valor_unitario", "valorUnitario", "preco_unitario",
             "data_recebimento", "dataRecebimento",
-            "unidades_armazenadas", "posicoes_porta_palete", "qtdPaletesPorMilheiro",
+            ...PALETTE_KEYS,
             "dias_armazenamento", "diasArmazenamento",
             "valor_faturamento", "subtotal",
             "link_nf"
@@ -260,8 +285,8 @@ class HtmlExporter
         let sortAsc = true;
 
         // Controle do tamanho da fonte exclusivo da tabela
-        const BASE_FONT_TH = 1; // rem
-        const BASE_FONT_TD = 1.2; // rem
+        const BASE_FONT_TH = 0.85; // rem
+        const BASE_FONT_TD = 1.0; // rem
         let fontStep = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -269,10 +294,12 @@ class HtmlExporter
             bsModalDetails = new bootstrap.Modal(document.getElementById('modalDetails'));
 
             populateFornecedores(DATASET.dados || []);
+            populateAnoAcervo(DATASET.dados || []);
             applyFilters();
 
             document.getElementById("searchInput").addEventListener("input", applyFilters);
             document.getElementById("filterFornecedor").addEventListener("change", applyFilters);
+            document.getElementById("filterAnoAcervo").addEventListener("change", applyFilters);
         });
 
         function adjustTableFontSize(direction) {
@@ -368,21 +395,53 @@ class HtmlExporter
             return str;
         }
 
+        function isPaletteKey(key) {
+            if (!key) return false;
+            if (PALETTE_KEYS.includes(key)) return true;
+
+            const cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const matchesPalete = cleanKey.includes("palete") || cleanKey.includes("palet");
+            const matchesTipo = cleanKey.includes("recebido") || cleanKey.includes("armazenado");
+
+            return matchesPalete && matchesTipo;
+        }
+
+        function getPaletteValue(item) {
+            if (!item) return 0;
+
+            for (const k of PALETTE_KEYS) {
+                if (item[k] !== undefined && item[k] !== null && item[k] !== "") {
+                    return parseCurrencyNumber(item[k]);
+                }
+            }
+
+            for (const key of Object.keys(item)) {
+                if (isPaletteKey(key) && item[key] !== undefined && item[key] !== null && item[key] !== "") {
+                    return parseCurrencyNumber(item[key]);
+                }
+            }
+
+            return 0;
+        }
+
         function getVisibleColumns(colunas) {
             if (!colunas) return [];
-            return colunas.filter(col => VISIBLE_KEYS.includes(col.chave));
+            return colunas.filter(col => VISIBLE_KEYS.includes(col.chave) || isPaletteKey(col.chave));
         }
 
         function getColWidthStyle(chave) {
+            if (isPaletteKey(chave)) return 'style="width: 8%;"';
+
             switch (chave) {
                 case 'nome_do_fornecedor': case 'fornecedor': return 'style="width: 18%;"';
                 case 'sku': return 'style="width: 7%;"';
-                case 'descricao_item': case 'descricao': case 'item': return 'style="width: 20%;"';
-                case 'tiragem': return 'style="width: 8%;"';
-                case 'valor_unitario': case 'valorUnitario': case 'preco_unitario': return 'style="width: 9%;"';
-                case 'data_recebimento': case 'dataRecebimento': return 'style="width: 9%;"';
-                case 'unidades_armazenadas': case 'posicoes_porta_palete': case 'qtdPaletesPorMilheiro': return 'style="width: 8%;"';
-                case 'dias_armazenamento': case 'diasArmazenamento': return 'style="width: 6%;"';
+                case 'descricao_item': case 'descricao': case 'item': return 'style="width: 18%;"';
+                case 'ano_acervo': case 'anoAcervo' : case 'ano' : return 'style="width: 5%;"';
+                case 'tiragem': return 'style="width: 7%;"';
+                case 'valor_unitario': case 'valorUnitario': case 'preco_unitario': return 'style="width: 8%;"';
+                case 'subtotal': return 'style="width: 12%;"';
+                case 'data_recebimento': case 'dataRecebimento': return 'style="width: 10%;"';
+                case 'dias_armazenamento': case 'diasArmazenamento': return 'style="width: 10%;"';
                 case 'valor_faturamento': case 'subtotal': return 'style="width: 10%;"';
                 case 'link_nf': return 'style="width: 5%;"';
                 default: return 'style="width: 10%;"';
@@ -414,7 +473,7 @@ class HtmlExporter
                     titulosNaoRecebidos++;
                 }
 
-                totalPaletes += parseCurrencyNumber(item.unidades_armazenadas || item.posicoes_porta_palete || item.qtdPaletesPorMilheiro || 0);
+                totalPaletes += getPaletteValue(item);
 
                 const valDiariaLinha = parseCurrencyNumber(item.valor_dia_armazenagem || item.valor_armazenagem_palete_dia || item.valorDiaria || 0);
                 if (valDiariaLinha > 0) {
@@ -453,15 +512,17 @@ class HtmlExporter
             let html = "<tr>";
 
             visCols.forEach(col => {
-                let alignClass = "text-start";
-                if (col.tipo === "numero" || col.tipo === "currency" || col.tipo === "dias" || col.chave === "tiragem" || col.chave.includes("valor")) alignClass = "text-end";
+                let alignClass = "text-center";
+                if (col.tipo === "numero" || col.tipo === "currency" || col.tipo === "dias" || col.chave === "tiragem" || col.chave.includes("valor") || isPaletteKey(col.chave)) alignClass = "text-center";
                 if (col.tipo === "status_data" || col.tipo === "link_nf" || col.tipo === "badge" || col.tipo === "data") alignClass = "text-center";
 
                 const isSorted = sortKey === col.chave;
                 const icon = isSorted ? (sortAsc ? '<i class="bi bi-arrow-up text-warning ms-1"></i>' : '<i class="bi bi-arrow-down text-warning ms-1"></i>') : '';
                 const widthAttr = getColWidthStyle(col.chave);
 
-                html += `<th \${widthAttr} class="\${alignClass} sortable" onclick="sortTable('\${col.chave}')">\${col.rotulo}\${icon}</th>`;
+                const labelExibicao = isPaletteKey(col.chave) ? "Paletes Armazenados" : col.rotulo;
+
+                html += `<th \${widthAttr} class="\${alignClass} sortable" onclick="sortTable('\${col.chave}')">\${labelExibicao}\${icon}</th>`;
             });
 
             html += "</tr>";
@@ -519,19 +580,18 @@ class HtmlExporter
                     } else if (col.tipo === "currency" || ch === "valor_unitario" || ch === "valorUnitario" || ch === "preco_unitario" || ch === "valor_faturamento" || ch === "subtotal") {
                         const numVal = parseCurrencyNumber(rawVal);
                         
-                        // Cor condicional para Valor de Faturamento / Subtotal
                         if (ch === "valor_faturamento" || ch === "subtotal") {
                             const textColorClass = numVal > 0 ? "text-success" : "text-danger";
-                            td.className = `text-end fw-semibold \${textColorClass}`;
+                            td.className = `text-center fw-semibold \${textColorClass}`;
                         } else {
-                            td.className = "text-end fw-semibold text-dark";
+                            td.className = "text-center fw-semibold text-dark";
                         }
                         
                         td.textContent = formatCurrency(rawVal);
-                    } else if (col.tipo === "numero" || col.tipo === "dias" || ch === "tiragem") {
-                        td.className = "text-end";
+                    } else if (col.tipo === "numero" || ch === "dias_armazenamento" || ch === "tiragem" || isPaletteKey(ch)) {
+                        td.className = "text-center";
                         td.textContent = formatNumber(rawVal);
-                    } else if (col.tipo === "status_data") {
+                    } else if (col.tipo === "data") {
                         td.className = "text-center";
                         if (!rawVal || rawVal === "Não Recebido") {
                             td.innerHTML = `<span class="badge bg-danger-subtle text-danger border border-danger">Não Recebido</span>`;
@@ -544,6 +604,7 @@ class HtmlExporter
                     } else {
                         if (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim())) {
                             td.textContent = formatDateToBR(rawVal);
+                            td.className = "text-center";
                         } else {
                             td.textContent = rawVal !== undefined && rawVal !== null ? rawVal : "-";
                         }
@@ -574,17 +635,36 @@ class HtmlExporter
             });
         }
 
+        function populateAnoAcervo(dados) {
+            const select = document.getElementById("filterAnoAcervo");
+            if (!select) return;
+            select.innerHTML = '<option value="">Todos os Acervos</option>';
+
+            const list = dados.map(i => i.ano_acervo || i.ano).filter(Boolean);
+            const anoAcervo = [...new Set(list)].sort();
+
+            anoAcervo.forEach(f => {
+                const opt = document.createElement("option");
+                opt.value = f;
+                opt.textContent = f;
+                select.appendChild(opt);
+            });
+        }
+
         function applyFilters() {
             const search = document.getElementById("searchInput").value.toLowerCase();
             const fornecedor = document.getElementById("filterFornecedor").value;
+            const anoAcervo = document.getElementById("filterAnoAcervo").value;
 
             const baseDados = DATASET.dados || [];
             currentFilteredData = baseDados.filter(item => {
                 const matchSearch = Object.values(item).some(v => String(v ?? '').toLowerCase().includes(search));
                 const itemForn = item.nome_do_fornecedor || item.fornecedor;
+                const itemAnoAcervo = item.ano_acervo || item.anoAcervo || item.ano;
                 const matchForn = !fornecedor || itemForn === fornecedor;
+                const matchAnoAcervo = !anoAcervo || itemAnoAcervo === anoAcervo;
 
-                return matchSearch && matchForn;
+                return matchSearch && matchForn && matchAnoAcervo;
             });
 
             if (DATASET.colunas) {
@@ -642,7 +722,14 @@ class HtmlExporter
 
                 const tr = document.createElement("tr");
                 const colDef = colConfigMap[key];
-                const label = colDef ? colDef.rotulo : (key === "link_nf" ? "Nota Fiscal" : key.replace(/_/g, ' ').toUpperCase());
+
+                let label = "Paletes Armazenados";
+                if (key === "unidades_armazenadas") {
+                    label = "Unidades Armazenadas";
+                } else if (!isPaletteKey(key)) {
+                    label = colDef ? colDef.rotulo : (key === "link_nf" ? "Nota Fiscal" : key.replace(/_/g, ' ').toUpperCase());
+                }
+
                 const rawVal = item[key] || (key === "link_nf" ? item.pdf : null);
 
                 let displayVal = "-";
@@ -661,7 +748,7 @@ class HtmlExporter
                         displayVal = formatCurrency(rawVal);
                     } else if (key.includes("meses")) {
                         displayVal = Number.parseFloat(rawVal).toFixed(2);
-                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("unidades") || key.includes("dias")) {
+                    } else if (tipo === "numero" || tipo === "dias" || key.includes("qtd") || key.includes("tiragem") || key.includes("posicoes") || key.includes("unidades") || key.includes("dias") || isPaletteKey(key)) {
                         displayVal = formatNumber(rawVal);
                     } else if (tipo === "data" || tipo === "status_data" || (typeof rawVal === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}/.test(rawVal.trim()))) {
                         displayVal = formatDateToBR(rawVal);
